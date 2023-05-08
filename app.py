@@ -1,17 +1,15 @@
 import streamlit as st
 import image_classification as img_cls
-import text_classification as txt_cls
+import sentiment_analysis as sent_ans
 import speech_to_text as stt
-import predict_timeseries as timeseries
-
-st.set_page_config(page_title="AI Applications", layout="wide")
+import time_series_forecasting as timeseries
 
 def main():
     st.title("AI Applications")
     
     app_options = {
         "Image Classification": img_cls,
-        "Text Classification": txt_cls,
+        "Sentiment Analysis": sent_ans,
         "Speech to Text": stt,
         "Predict Time Series": timeseries
     }

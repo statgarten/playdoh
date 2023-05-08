@@ -6,3 +6,8 @@ pillow
 soundfile
 torch 
 transformers
+fastapi 
+python-multipart
+uvicorn 
+torchaudio
+librosa

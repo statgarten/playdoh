@@ -1,23 +1,18 @@
 import streamlit as st
-from function.functions import load_model, preprocess_audio, convert_audio_to_text
-
-MODEL_ID = "facebook/wav2vec2-base"
-SAMPLE_FILE = "sample.wav"
+import requests
 
 def main():
-    st.title("Speech to Text")
-    st.write("Upload a WAV file to get the transcript")
+    st.header("Speech-to-Text with wav2vec")
     
-    uploaded_file = st.file_uploader("Choose a WAV file", type=["wav"])
+    uploaded_file = st.file_uploader("Choose a WAV file", type="wav")
+    if uploaded_file is not None:
+        files = {"file": (uploaded_file.name, uploaded_file, "audio/wav")}
+        response = requests.post("http://localhost:8000/transcribe", files=files)
+        transcription = response.json()["transcription"]
 
-    if uploaded_file:
-        st.audio(uploaded_file)
-        audio_input = preprocess_audio(uploaded_file)
-        
-        st.write("Loading model...")
-        processor, model = load_model(MODEL_ID)
-        
-        with st.spinner("Transcribing..."):
-            transcript = convert_audio_to_text(audio_input, processor, model)
-        
-        st.write(f"Transcript: {transcript}")
+        st.write("Transcription:")
+        st.write(transcription)
+
+# For running this file individually
+# if __name__ == "__main__":
+#     app()
