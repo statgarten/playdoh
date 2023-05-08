@@ -11,7 +11,7 @@ def main():
         "Image Classification": img_cls,
         "Sentiment Analysis": sent_ans,
         "Speech to Text": stt,
-        "Predict Time Series": timeseries
+        "Time Series Forecasting": timeseries
     }
     
     app_choice = st.sidebar.selectbox("Choose an application", options=list(app_options.keys()))
