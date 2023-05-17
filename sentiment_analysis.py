@@ -1,7 +1,7 @@
 import streamlit as st
 
 def main():
-    st.title("sentiment analysis")
+    st.header("sentiment analysis")
     st.write("This page will perform sentiment analysis.")
 
 # For running this file individually

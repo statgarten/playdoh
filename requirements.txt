@@ -5,6 +5,7 @@ numpy
 pillow
 soundfile
 torch 
+torchvision
 transformers
 fastapi 
 python-multipart

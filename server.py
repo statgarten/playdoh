@@ -1,32 +1,38 @@
-from fastapi import FastAPI, File, UploadFile
-from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
-import soundfile as sf
-import torch
-import librosa
+from fastapi import FastAPI, UploadFile, File
+from torch import nn, optim
 
 app = FastAPI()
-tokenizer = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base-960h")
-model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-base-960h")
 
-def stt_pipeline(input_file):
-    speech, sample_rate = sf.read(input_file)
-    
-    # Convert to mono if the audio has multiple channels
-    if len(speech.shape) > 1 and speech.shape[1] > 1:
-        speech = speech.mean(axis=1)
-    
-    # Resample the audio to the expected sampling rate
-    target_sampling_rate = 16000
-    if sample_rate != target_sampling_rate:
-        speech = librosa.resample(speech, orig_sr=sample_rate, target_sr=target_sampling_rate)
-        sample_rate = target_sampling_rate
+def train_model(learning_rate, num_epochs, dataloader, device, model):
+    criterion = nn.CrossEntropyLoss().to(device)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    input_values = tokenizer(speech, return_tensors="pt", padding="longest", sampling_rate=sample_rate).input_values
-    logits = model(input_values).logits
-    predicted_ids = torch.argmax(logits, dim=-1)
-    transcription = tokenizer.batch_decode(predicted_ids)[0]
-    return transcription
+    # Train model
+    total_step = len(dataloader)
+    for epoch in range(num_epochs):
+        for i, (images, labels) in enumerate(dataloader):
+            # Images and labels to device
+            images = images.to(device)
+            labels = labels.to(device)
 
-@app.post("/transcribe")
-async def transcribe_audio(file: UploadFile = File(...)):
-    return {"transcription": stt_pipeline(file.file)}
+            # Forward pass
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+
+            # Backward and optimize
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            
+            print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, i+1, total_step, loss.item()))
+            
+    return model
+
+@app.post("/img_train")
+async def train_model_endpoint(images: dict[str, list[UploadFile]] = File(...)):
+    # TODO: 
+    # 1. Image transform
+    # 2. Get image, label information
+    # 3. Train the model with HP
+
+    return {"message": "Model trained completed"}
