@@ -14,7 +14,7 @@ from sklearn.preprocessing import LabelEncoder
 
 from fastapi import FastAPI, UploadFile, File, Form
 from PIL import Image
-from io import BytesIO
+from io import BytesIO, BufferedReader
 
 app = FastAPI()
 # server내 공유
@@ -119,6 +119,7 @@ async def train_model_endpoint(labels:list[str],
     # 3. Train the model with HP
     model = train_model(learning_rate, epoch, dataloader, device, model)
     print(type(model))
+
     return model
 
 # image test
@@ -129,7 +130,8 @@ async def test_model_endpoint(files: list[UploadFile] = File(...),
     # 다른 post에서 생성한 전역변수
     global encoder
     global device
-    
+    print(type(model))
+    # model = (BytesIO(model))
     model = torch.load(BytesIO(model))
     model.eval()
 

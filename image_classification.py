@@ -68,7 +68,7 @@ def main():
             train_labels = []
             file_bytes_list = []              
             for i in range(num_classes):
-                labels = []
+                # labels = []
                 # 이미지 label 이름 수정칸과 업로드 공간 분리
                 img_label, empty, img_load = st.columns([2, 0.5, 7])    
                 
@@ -209,9 +209,8 @@ def main():
                     st.success("Train completed b")
                     res = response.json()
                     model = response.content
-                    serialized_model = pickle.dumps(model)
-                    if 'image_model' not in st.session_state:
-                        st.session_state['image_model'] = serialized_model
+                    # serialized_model = pickle.dumps(model)
+                    st.session_state['image_model'] = model
                     st.session_state['model'] = model
                     # st.write(res['Model'])
                     # st.write(model)
@@ -239,7 +238,8 @@ def main():
                 if test_image:
                     file_byte = test_image.read()
                     file_bytes_test_list.append(('files', BytesIO(file_byte)))
-                    pred = requests.post("http://localhost:8001/img_test", files=file_bytes_test_list) # st.session_state['image_model'], , data={'model':st.session_state['image_model']}
+
+                    pred = requests.post("http://localhost:8001/img_test", files=file_bytes_test_list, data= {'model':st.session_state['model']}) # st.session_state['image_model'], , data={'model':st.session_state['image_model']}
 
             empty, test_img, empty = st.columns([1, 8, 1])
 
@@ -247,20 +247,24 @@ def main():
                 if test_image:
                     img = Image.open(test_image)
                     resize_img = img.resize((500, 500))  
-                    st.caption('test_file_name : ' + test_image.name)
-                    st.caption('test_file_size : ' + str(test_image.size / 1000) + 'MB')       
                     st.image(resize_img)
-                
+                    st.caption('test_file_name : ' + test_image.name)
+                    st.caption('test_file_size : ' + str(test_image.size / 1000) + 'MB') 
+
         with test_pred:
             if test_image:
+                st.write('prediction result')
                 if pred.ok:
                     res = pred.json()
                     # st.write(res['Model'])
                     pred_labels = res['pred_label']
                     pred_prob = round(res['prob'] * 100, 2)
-                    st.subheader(f'이 사진은 {pred_labels} (probability: {pred_prob}%)')
+                    st.subheader(f'이 사진은 {pred_labels}입니다. (probability: {pred_prob}%)')
                 else:
+                    st.write('error')
                     st.subheader(pred)
+            else:
+                st.write('prediction result')
 
         # 2) Download the fine-tuned model (GET)
         if st.button("Download Model"):
