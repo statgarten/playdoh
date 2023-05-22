@@ -147,10 +147,10 @@ def main():
 
         # HP_dict
         HP_dict = {
-            'Learning rate' : 'Description of Learning rate',
-            'Batch size': 'Description of Batch size',
-            'Epoch': 'Description of Epoch',
-            'Optimizer': 'Description of Optimizer'
+            'Learning rate' : '모델의 파라미터를 업데이트하는 정도',
+            'Batch size': '가중치를 한 번 업데이트하기 위해 사용되는 훈련 데이터의 크기',
+            'Epoch': '모델 훈련에 전체 훈련데이터가 모두 사용되는 것을 의미하고, 1 epoch 이후 모델의 파라미터가 업데이트됩니다',
+            'Optimizer': '모델 훈련 중 손실 함수를 최소화하면서 모델의 가중치를 업데이트할 수 있도록하는 알고리즘'
         }
         with hyper_parameter_pick:
             with st.container():
