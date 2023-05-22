@@ -148,9 +148,7 @@ def main():
         # HP_dict
         HP_dict = {
             'Learning rate' : 'Description of Learning rate',
-            'Batch size': 'Description of Batch size',
-            'Epoch': 'Description of Epoch',
-            'Optimizer': 'Description of Optimizer'
+            'Batch size': 'Description of Batch size'
         }
         with hyper_parameter_pick:
             with st.container():
