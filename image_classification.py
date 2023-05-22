@@ -147,8 +147,7 @@ def main():
 
         # HP_dict
         HP_dict = {
-            'Learning rate' : '모델의 파라미터를 업데이트하는 정도',
-            'Batch size': '가중치를 한 번 업데이트하기 위해 사용되는 훈련 데이터의 크기',
+            ## 말도안됨
         }
         with hyper_parameter_pick:
             with st.container():
