@@ -16,7 +16,7 @@ def preview_img(uploaded_images, label_name, no):
     resize_img = img.resize((500, 500))         
     st.image(resize_img)
     st.caption('file name : ' + uploaded_images[label_name][no].name)
-    st.caption('file size : ' + str(uploaded_images[label_name][no].size / 1000) + 'MB')
+    st.caption('file size : ' + str(uploaded_images[label_name][no].size / 1000) + 'KB')
 
 # 각 이미지의 데이터셋 길이만큼 label생성
 def label_create(data_set, label):
@@ -248,7 +248,7 @@ def main():
                     img = Image.open(test_image)
                     resize_img = img.resize((500, 500))  
                     st.caption('test_file_name : ' + test_image.name)
-                    st.caption('test_file_size : ' + str(test_image.size / 1000) + 'MB')       
+                    st.caption('test_file_size : ' + str(test_image.size / 1000) + 'KB')       
                     st.image(resize_img)
                 
         with test_pred:
