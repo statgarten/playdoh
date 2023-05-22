@@ -16,7 +16,7 @@ def preview_img(uploaded_images, label_name, no):
     resize_img = img.resize((500, 500))         
     st.image(resize_img)
     st.caption('file name : ' + uploaded_images[label_name][no].name)
-    st.caption('file size : ' + str(uploaded_images[label_name][no].size / 1000) + 'KB')
+    st.caption('file size : ' + str(uploaded_images[label_name][no].size / 1000) + 'MB')
 
 # 각 이미지의 데이터셋 길이만큼 label생성
 def label_create(data_set, label):
@@ -147,8 +147,10 @@ def main():
 
         # HP_dict
         HP_dict = {
-            ## 말도안됨
-            ## 추가
+            'Learning rate' : 'Description of Learning rate',
+            'Batch size': 'Description of Batch size',
+            'Epoch': 'Description of Epoch',
+            'Optimizer': 'Description of Optimizer'
         }
         with hyper_parameter_pick:
             with st.container():
@@ -247,9 +249,8 @@ def main():
                     resize_img = img.resize((500, 500))  
                     st.image(resize_img)
                     st.caption('test_file_name : ' + test_image.name)
-                    st.caption('test_file_size : ' + str(test_image.size / 1000) + 'MB')       
-                    st.image(resize_img)
-                
+                    st.caption('test_file_size : ' + str(test_image.size / 1000) + 'MB') 
+
         with test_pred:
             if test_image:
                 st.write('prediction result')
