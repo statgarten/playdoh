@@ -134,5 +134,5 @@ dmypy.json
 
 .DS_Store
 
-# mobilnetv3
-mobilnetv3/
+# mobilenet_v3
+mobilenet_v3/
