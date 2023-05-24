@@ -133,3 +133,6 @@ dmypy.json
 .streamlit/secrets.toml
 
 .DS_Store
+
+# mobilnetv3
+mobilnetv3/

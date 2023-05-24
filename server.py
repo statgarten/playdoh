@@ -1,26 +1,24 @@
-import numpy as np
-import pickle
-
 import torch.nn.init
 import torch.nn as nn
 import torch.cuda as tc
 import torch.optim as optim # 최적화 함수
 import torchvision.transforms as transforms # 전처리
-import torchvision.models as models # 사전 학습 모델
 
 from torch.utils.data import DataLoader
 
 from sklearn.preprocessing import LabelEncoder
 
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form 
+from starlette.responses import FileResponse
+
 from PIL import Image
 from io import BytesIO
 
+# MobilenetV3를 구성하기 위해 py와 가중치파일을 따로 폴더에 넣기
+import mobilenet_v3.mobilenetv3 as mobilenetv3
+import numpy as np
+
 app = FastAPI()
-# server내 공유
-model = None
-encoder = None
-device = None
 
 # LabelEncdoing
 def label_encoding(labels):
@@ -33,19 +31,27 @@ def label_encoding(labels):
 
 # preprcessing image
 transform_img = transforms.Compose([
-    transforms.Resize((192, 192)),
+    transforms.Resize((224, 224)),
     transforms.ToTensor(),
     # transforms.Normalize(mean=[R채널 평균, G채널 평균, B채널 평균] , std=[R채널 표준편차, G채널 표준편차, B채널 표준편차])
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     # ImageNet이 학습한 수백만장의 이미지의 RGB 각각의 채널에 대한 평균은 0.485, 0.456, 0.406 그리고 표준편차는 0.229, 0.224, 0.225
-    
 ])
 
 # create model
 def create_model(num_classes, device):
     
-    model = models.mobilenet_v3_large(pretrained=True)
-    
+    # 폴더를 만들고 다운로드 받아서 넣어주기
+    # 그리고 그 폴더에 있는 모델을 로드해서 모델 돌리는 것으로 진행
+    # gitignore에 폴더 삽입
+
+    # 가중치 파일 경로
+    weight_path = "mobilenet_v3/mobilenetv3-large.pth"
+    # mobilenetv3_large 넣어주기
+    model = mobilenetv3.mobilenetv3_large()
+    # 가중치 파일 삽입?
+    model.load_state_dict(torch.load(weight_path))
+
     for param in model.parameters():
         param.requires_grad = False
           
@@ -58,10 +64,15 @@ def create_model(num_classes, device):
     return model.to(device)
 
 # trian model
-def train_model(learning_rate, num_epochs, dataloader, device, model):
+def train_model(learning_rate, num_epochs, dataloader, device, model, opti):
 
     criterion = nn.CrossEntropyLoss().to(device)
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    if opti == 'Adam':
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    elif opti == 'SGD':
+        optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+    elif opti == 'AdaGrad':
+        optimizer = optim.Adagrad(model.parameters(), lr=learning_rate)
 
     # Train model
     total_step = len(dataloader)
@@ -99,6 +110,7 @@ async def train_model_endpoint(labels:list[str],
     encoder, train_labels = label_encoding(labels)
     encoder = encoder
 
+    global device
     # set gpu or cpu 
     device = 'cuda' if tc.is_available() else 'cpu'
 
@@ -112,25 +124,28 @@ async def train_model_endpoint(labels:list[str],
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)    
     
     global model
-
     # 2. Create the model 
     model = create_model(num_classes, device)
     
     # 3. Train the model with HP
-    model = train_model(learning_rate, epoch, dataloader, device, model)
-    print(type(model))
+    model = train_model(learning_rate, epoch, dataloader, device, model, opti)
+
+    torch.save(model, 'image_classification_model.pth')
+
     return model
 
 # image test
 @app.post("/img_test")
-async def test_model_endpoint(files: list[UploadFile] = File(...),
-                              model: bytes = File(...)):
+async def test_model_endpoint(files: list[UploadFile] = File(...)):
 
     # 다른 post에서 생성한 전역변수
+    # global model
+
     global encoder
     global device
-    
-    model = torch.load(BytesIO(model))
+
+    # model load
+    model = torch.load("image_classification_model.pth", map_location=device)
     model.eval()
 
     # predict test_img 
@@ -142,7 +157,21 @@ async def test_model_endpoint(files: list[UploadFile] = File(...),
 
         output = model(img_tensor)
         pred_prob = torch.softmax(output, dim=1)[0]  # 소프트맥스 함수를 통해 예측 확률 계산
-        pred_label = torch.argmax(pred_prob).item()  # 가장 높은 확률을 가진 클래스 라벨 추출
-        pred_encoder_label = encoder.inverse_transform([torch.argmax(pred_prob).item()])[0]
+    
+    pred_list = [] # return할 예측 리스트
+    for idx, ratio in enumerate(pred_prob):
+        pred_list.append((encoder.inverse_transform([idx])[0], ratio.item())) # (label, ratio)
 
-    return {'pred_label':pred_encoder_label, 'prob':pred_prob[pred_label].item()}
+    # 확률이 높은 순으로 정렬
+    pred_list.sort(key = lambda x : x[1], reverse=True)
+
+    return {'prediction':pred_list}
+
+
+# model download endpoint
+@app.get("/model_download")
+def download_model():
+
+    model_path = 'image_classification_model.pth'
+
+    return FileResponse(path=model_path, filename=model_path, media_type='application/octet-stream')
