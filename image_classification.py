@@ -6,8 +6,8 @@ import requests
 from PIL import Image
 from io import BytesIO
 
-# 이미지 미리보기
-def preview_img(uploaded_images, label_name, no):
+# 학습 이미지 미리보기
+def train_preview_img(uploaded_images, label_name, no):
     img = Image.open(uploaded_images[label_name][no])
     resize_img = img.resize((500, 500))
     # 여백을 위한 코드
@@ -17,12 +17,142 @@ def preview_img(uploaded_images, label_name, no):
     st.image(resize_img)
     st.caption('file name : ' + uploaded_images[label_name][no].name + ' / size : ' + str(uploaded_images[label_name][no].size / 1000) + 'KB (' + str(no + 1) + ' / ' + str(len(uploaded_images[label_name])) + ')')
 
+# 테스트 이미지 미리보기
+def test_preview_img(test_image):
+    img = Image.open(test_image)
+    resize_img = img.resize((450, 450))  
+    st.image(resize_img)
+    st.caption('file name : ' + test_image.name + ' / ' + 'size : ' + str(test_image.size / 1000) + 'KB')
+
 # 각 이미지의 데이터셋 길이만큼 label생성
 def label_create(data_set, label):
     
     labels = [label for _ in range(len(data_set))]
     
     return labels
+
+# add class
+def class_count_plus():
+    if st.session_state['num_classes'] >= 5:
+        st.session_state['num_classes'] = 5
+    else:
+        st.session_state['num_classes'] += 1
+
+# delete class
+def class_count_minus():
+    if st.session_state['num_classes'] <= 2:
+        st.session_state['num_classes'] = 2
+    else:
+        st.session_state['num_classes'] -= 1
+
+# 설명 세션 초기화
+def explanation_session_clear():
+    if 'explanation' in st.session_state:
+        del st.session_state['explanation']
+
+# 학습 이미지 업로드
+def train_img_upload(i, uploaded_images, class_name):
+
+    file_bytes_list = []
+
+    images = st.file_uploader(' ',accept_multiple_files=True, key=f'uploader{i}', type=['png', 'jpg', 'jpeg', 'tiff','webp'],label_visibility='hidden') # 'tiff', 'webp'
+    if images:
+        uploaded_images[class_name] = [image for image in images]
+
+        for image, _ in zip(images, uploaded_images[class_name]):
+
+            # png, jpg같이 채널이 차이나는 파일에 대한 채널수 동일 코드
+            file_byte = image.read()
+            image_tmp = Image.open(BytesIO(file_byte))
+            image_rgb = image_tmp.convert('RGB')
+            byte_arr = BytesIO()
+            image_rgb.save(byte_arr, format='JPEG')
+            file_byte = byte_arr.getvalue()
+            file_bytes_list.append(('files', BytesIO(file_byte)))
+    
+    return file_bytes_list
+
+# prev, nex에 empty 생성
+def create_empty():
+    for i in range(13):
+        with st.container():
+            st.empty()
+
+# 이미지 슬라이드
+def image_slide(uploaded_images, label_name):
+    # 초기화
+    if 'lst_no' not in st.session_state:
+        st.session_state['lst_no'] = 0
+
+    # image slide
+    if st.session_state.lst_no >= len(uploaded_images[label_name]) - 1: 
+        st.session_state.lst_no = len(uploaded_images[label_name]) - 1
+        train_preview_img(uploaded_images, label_name, st.session_state['lst_no'])
+    elif st.session_state.lst_no < 1: 
+        st.session_state.lst_no = 0
+        train_preview_img(uploaded_images, label_name, st.session_state['lst_no'])                    
+    else:
+        train_preview_img(uploaded_images, label_name, st.session_state['lst_no'])
+
+# create_labels
+def create_label(train_labels, uploaded_images):
+    create_labels = []
+    for label_name in train_labels:
+        create_labels += label_create(uploaded_images[label_name], label_name)
+    return create_labels
+
+# train request
+def train_request(file_bytes_list, create_labels, learning_rate, batch_size, epoch, opti, num_classes):
+    response = requests.post("http://localhost:8001/img_train", files=file_bytes_list, data={'labels':list(create_labels),
+                                                                                            'learning_rate':float(learning_rate),
+                                                                                            'batch_size':int(batch_size),
+                                                                                            'epoch':int(epoch),
+                                                                                            'opti':opti,
+                                                                                            'num_classes':num_classes})
+    return response
+
+# upload test image and request
+# png, jpg같이 채널이 차이나는 파일에 대한 채널수 동일 코드
+def test_image_upload_request(test_image):
+
+    file_bytes_test_list = []
+
+    test_file_byte= test_image.read()
+    test_image_tmp = Image.open(BytesIO(test_file_byte))
+    test_image_rgb = test_image_tmp.convert('RGB')
+    test_byte_arr = BytesIO()
+    test_image_rgb.save(test_byte_arr, format='JPEG')
+    file_byte_test = test_byte_arr.getvalue()
+    file_bytes_test_list.append(('files', BytesIO(file_byte_test)))
+
+    pred = requests.post("http://localhost:8001/img_test", files=file_bytes_test_list)
+
+    return pred
+
+# prediction_result
+def prediction_result(pred):
+    prediction = pred.json()
+    # prediction 결과를 담기 위한 DataFrame 생성
+    pred_df = pd.DataFrame(columns=['class_name', 'prediction_probability'])
+
+    for idx, pred_result in enumerate(prediction['prediction']):
+        pred_df.loc[idx] = [pred_result[0], round(pred_result[1] * 100, 2)]
+
+    _, pred_result = st.columns([3, 7])
+
+    with pred_result:
+        with st.container():
+            st.markdown("해당 사진은 "+ str(round(prediction['prediction'][0][1] * 100, 2)) +"%의 확률로 '__"+  prediction['prediction'][0][0] +"__' 입니다.")
+
+    base = alt.Chart(pred_df, height=550).encode(x='prediction_probability',
+                                                y='class_name:N',
+                                                color=alt.Color('class_name:N', scale=alt.Scale(scheme='category10')),
+                                                text='prediction_probability'
+                                                )
+
+    # size=alt.value(30): 막대 굵기, align='left': , dx=10: 막대와의 거리, fontSize=20: 글자 사이즈
+    chart = base.mark_bar().encode(size=alt.value(30)) + base.mark_text(align='left', dx=10, fontSize=20)
+    st.altair_chart(chart, use_container_width=True)
 
 # css 조정
 # button 모양 조정
@@ -66,22 +196,7 @@ def css_style():
                 unsafe_allow_html=True,
             )
 
-# add class
-def class_count_plus():
-    if st.session_state['num_classes'] >= 5:
-        st.session_state['num_classes'] = 5
-    else:
-        st.session_state['num_classes'] += 1
-
-# delete class
-def class_count_minus():
-    if st.session_state['num_classes'] <= 2:
-        st.session_state['num_classes'] = 2
-    else:
-        st.session_state['num_classes'] -= 1
-
 def main():
-
     # css style modify
     css_style()
 
@@ -93,26 +208,24 @@ def main():
     # True : english
     if st.session_state['ko_en']:
 
-        _, add_class, del_class, _ = st.columns([0.2, 0.8, 1, 9])
-        with add_class:
-            st.button('Add class', on_click=class_count_plus)
-        with del_class:
-            st.button('Delete class', on_click=class_count_minus)
-
         # st.session_state['explanation'] 초기화
-        if 'explanation' in st.session_state:
-            del st.session_state['explanation']
+        explanation_session_clear()
 
         # image upload
         with st.expander('Image Upload', expanded=True):
-
-
 
             uploaded_images = {}
             # 이미지 업로드 칸과 미리보기 공간 나누기
             _, img_upload, _, img_see, _ = st.columns([0.2, 4, 0.3, 6, 0.1])
 
             with img_upload:
+
+                add_class, del_class = st.columns([1, 1])
+                with add_class:
+                    st.button('Add class', on_click=class_count_plus, use_container_width=True)
+                with del_class:
+                    st.button('Delete class', on_click=class_count_minus, use_container_width=True)
+
                 train_labels = []
                 file_bytes_list = []  
 
@@ -126,21 +239,7 @@ def main():
                         train_labels.append(class_name)
 
                     with img_load:
-                        images = st.file_uploader(' ',accept_multiple_files=True, key=f'uploader{i}', type=['png', 'jpg', 'jpeg', 'tiff','webp'],label_visibility='hidden') # 'tiff', 'webp'
-                        if images:
-                            uploaded_images[class_name] = [image for image in images]
-
-                            for image, _ in zip(images, uploaded_images[class_name]):
-
-                                # png, jpg같이 채널이 차이나는 파일에 대한 채널수 동일 코드
-                                file_byte = image.read()
-                                image_tmp = Image.open(BytesIO(file_byte))
-                                image_rgb = image_tmp.convert('RGB')
-                                byte_arr = BytesIO()
-                                image_rgb.save(byte_arr, format='JPEG')
-                                file_byte = byte_arr.getvalue()
-    
-                                file_bytes_list.append(('files', BytesIO(file_byte)))
+                        file_bytes_list = train_img_upload(i, uploaded_images, class_name)
 
             # image preview
             with img_see:
@@ -157,36 +256,20 @@ def main():
 
                     # ← previous
                     with prev:
-                        for i in range(13):
-                            with st.container():
-                                st.empty()
+                        create_empty()
                         if st.button('← previous', use_container_width = True):
                             st.session_state.lst_no -= 1
 
                     # next →
                     with nex:
-                        for i in range(13):
-                            with st.container():
-                                st.empty()
+                        create_empty()
                         if st.button('next →', use_container_width = True):
                             st.session_state.lst_no += 1
 
                     # preview
                     with img:
-                        # 초기화
-                        if 'lst_no' not in st.session_state:
-                            st.session_state['lst_no'] = 0
-
-                        # image slide
-                        if st.session_state.lst_no >= len(uploaded_images[label_name]) - 1: 
-                            st.session_state.lst_no = len(uploaded_images[label_name]) - 1
-                            preview_img(uploaded_images, label_name, st.session_state['lst_no'])
-                        elif st.session_state.lst_no < 1: 
-                            st.session_state.lst_no = 0
-                            preview_img(uploaded_images, label_name, st.session_state['lst_no'])                    
-                        else:
-                            preview_img(uploaded_images, label_name, st.session_state['lst_no'])
-
+                        image_slide(uploaded_images, label_name)
+                    
                 # 아직 이미지를 업로드 안했을 때
                 else:
                     st.write('Pick preview image list')
@@ -245,16 +328,11 @@ def main():
                 if training :
                     if len(uploaded_images.keys()) !=0 and len(uploaded_images.keys()) >= st.session_state.num_classes:
                         # create labels
-                        create_labels = []
-                        for label_name in train_labels:
-                            create_labels += label_create(uploaded_images[label_name], label_name)
+                        create_labels = create_label(train_labels, uploaded_images)
+                        # for label_name in train_labels:
+                        #     create_labels += label_create(uploaded_images[label_name], label_name)
                         with st.spinner('Training Model..'):
-                            response = requests.post("http://localhost:8001/img_train", files=file_bytes_list, data={'labels':list(create_labels),
-                                                                                                            'learning_rate':float(learning_rate),
-                                                                                                            'batch_size':int(batch_size),
-                                                                                                            'epoch':int(epoch),
-                                                                                                            'opti':opti,
-                                                                                                            'num_classes':st.session_state.num_classes})
+                            response = train_request(file_bytes_list, create_labels, learning_rate, batch_size, epoch, opti, st.session_state.num_classes)
                         
                         if response.ok: 
                             st.success("Train completed : )")
@@ -278,56 +356,24 @@ def main():
                 _, test_img_load, _ = st.columns([0.7, 9, 0.5])
 
                 with test_img_load:
-                    file_bytes_test_list = []
-
                     # 1) Upload a test image and send the image to (POST)
                     test_image = st.file_uploader("Upload a test image", type=['png', 'jpg', 'jpeg','tiff','webp'], accept_multiple_files=False)
                     
                     if test_image:
-                        # png, jpg같이 채널이 차이나는 파일에 대한 채널수 동일 코드
-                        test_file_byte= test_image.read()
-                        test_image_tmp = Image.open(BytesIO(test_file_byte))
-                        test_image_rgb = test_image_tmp.convert('RGB')
-                        test_byte_arr = BytesIO()
-                        test_image_rgb.save(test_byte_arr, format='JPEG')
-                        file_byte_test = test_byte_arr.getvalue()
-                        file_bytes_test_list.append(('files', BytesIO(file_byte_test)))
-                        pred = requests.post("http://localhost:8001/img_test", files=file_bytes_test_list)
-
+                        pred = test_image_upload_request(test_image)
+                        
                 _, test_img, _ = st.columns([0.7, 8, 0.5])
 
                 with test_img:
                     if test_image:
-                        img = Image.open(test_image)
-                        resize_img = img.resize((450, 450))  
-                        st.image(resize_img)
-                        st.caption('file name : ' + test_image.name + ' / ' + 'size : ' + str(test_image.size / 1000) + 'KB')
+                        test_preview_img(test_image)
 
             with test_pred_prob:
                 if test_image:
                     st.write('Prediction result')
-
                     if pred.ok:
-                        prediction = pred.json()
-
-                        # prediction 결과를 담기 위한 DataFrame 생성
-                        pred_df = pd.DataFrame(columns=['class_name', 'prediction_probability'])
-
-                        for idx, pred_result in enumerate(prediction['prediction']):
-                            pred_df.loc[idx] = [pred_result[0], round(pred_result[1] * 100, 2)]
-                        _, pred_result = st.columns([3, 7])
-                        with pred_result:
-                            with st.container():
-                                st.markdown("해당 사진은 "+ str(round(prediction['prediction'][0][1] * 100, 2)) +"%의 확률로 '__"+  prediction['prediction'][0][0] +"__' 입니다.")
-
-                        base = alt.Chart(pred_df, height=550).encode(x='prediction_probability',
-                                                                    y='class_name:N',
-                                                                    color=alt.Color('class_name:N', scale=alt.Scale(scheme='category10')),
-                                                                    text='prediction_probability'
-                                                                    )
-                        # size=alt.value(30): 막대 굵기, align='left': , dx=10: 막대와의 거리, fontSize=20: 글자 사이즈
-                        chart = base.mark_bar().encode(size=alt.value(30)) + base.mark_text(align='left', dx=10, fontSize=20)
-                        st.altair_chart(chart, use_container_width=True)
+                        # 예측 그래프 함수
+                        prediction_result(pred)
                     else:
                         st.error('Please Train Model : <')
                 else:
@@ -352,21 +398,21 @@ def main():
 
         # image upload
         with st.expander('이미지 업로드', expanded=True):
-            
-            _, add_class, del_class, _ = st.columns([0.2, 1, 1, 9])
-            with add_class:
-                st.button('클래스 추가', on_click=class_count_plus)
-            with del_class:
-                st.button('클래스 삭제', on_click=class_count_minus)
-
+        
             uploaded_images = {}
             
             # 이미지 업로드 칸과 미리보기 공간 나누기
             _, img_upload, _, img_see, _ = st.columns([0.2, 4, 0.3, 6, 0.1])
 
             with img_upload:
-                train_labels = []
-                file_bytes_list = []              
+
+                add_class, del_class = st.columns(2)
+                with add_class:
+                    st.button('클래스 추가', on_click=class_count_plus, use_container_width=True)
+                with del_class:
+                    st.button('클래스 삭제', on_click=class_count_minus, use_container_width=True)
+
+                train_labels = []           
                 for i in range(st.session_state.num_classes):
                     # labels = []
                     # 이미지 label 이름 수정칸과 업로드 공간 분리
@@ -377,21 +423,7 @@ def main():
                         train_labels.append(class_name)
 
                     with img_load:
-                        images = st.file_uploader(' ',accept_multiple_files=True, key=f'uploader{i}', type=['png', 'jpg', 'jpeg', 'tiff','webp'],label_visibility='hidden') # 'tiff', 'webp'
-                        if images:
-                            uploaded_images[class_name] = [image for image in images]
-
-                            for image, _ in zip(images, uploaded_images[class_name]):
-
-                                # png, jpg같이 채널이 차이나는 파일에 대한 채널수 동일 코드
-                                file_byte = image.read()
-                                image_tmp = Image.open(BytesIO(file_byte))
-                                image_rgb = image_tmp.convert('RGB')
-                                byte_arr = BytesIO()
-                                image_rgb.save(byte_arr, format='JPEG')
-                                file_byte = byte_arr.getvalue()
-    
-                                file_bytes_list.append(('files', BytesIO(file_byte)))
+                        file_bytes_list = train_img_upload(i, uploaded_images, class_name)
 
             # image preview
             with img_see:
@@ -408,35 +440,19 @@ def main():
 
                     # ← previous
                     with prev:
-                        for i in range(13):
-                            with st.container():
-                                st.empty()
+                        create_empty()
                         if st.button('← 이전', use_container_width = True):
                             st.session_state.lst_no -= 1
 
                     # next →
                     with nex:
-                        for i in range(13):
-                            with st.container():
-                                st.empty()
-                        if st.button('이후 →', use_container_width = True):
+                        create_empty()
+                        if st.button('다음 →', use_container_width = True):
                             st.session_state.lst_no += 1
 
                     # preview
                     with img:
-                        # 초기화
-                        if 'lst_no' not in st.session_state:
-                            st.session_state['lst_no'] = 0
-
-                        # image slide
-                        if st.session_state.lst_no >= len(uploaded_images[label_name]) - 1: 
-                            st.session_state.lst_no = len(uploaded_images[label_name]) - 1
-                            preview_img(uploaded_images, label_name, st.session_state['lst_no'])
-                        elif st.session_state.lst_no < 1: 
-                            st.session_state.lst_no = 0
-                            preview_img(uploaded_images, label_name, st.session_state['lst_no'])                    
-                        else:
-                            preview_img(uploaded_images, label_name, st.session_state['lst_no'])
+                        image_slide(uploaded_images, label_name)
 
                 # 아직 이미지를 업로드 안했을 때
                 else:
@@ -483,7 +499,7 @@ def main():
                 st.text_area('**_하이파파라미터 설명_**', st.session_state['explanation'], height = 342, disabled = True)
 
             # Images to backend (/img_train)
-            _, train_txt, train_model = st.columns([12.8, 2.0, 2.0])
+            _, train_txt, train_model = st.columns([12.8, 2, 1.7])
 
             # training model
             with train_model:
@@ -496,19 +512,14 @@ def main():
                 if training :
                     if len(uploaded_images.keys()) !=0 and len(uploaded_images.keys()) >= st.session_state.num_classes:
                         # create labels
-                        create_labels = []
-                        for label_name in train_labels:
-                            create_labels += label_create(uploaded_images[label_name], label_name)
+                        create_labels = create_label(train_labels, uploaded_images)
 
                         with st.spinner('모델 학습중..'):
-                            response = requests.post("http://localhost:8001/img_train", files=file_bytes_list, data={'labels':list(create_labels),
-                                                                                                            'learning_rate':float(learning_rate),
-                                                                                                            'batch_size':int(batch_size),
-                                                                                                            'epoch':int(epoch),
-                                                                                                            'opti':opti,
-                                                                                                            'num_classes':st.session_state.num_classes})
+                            response = train_request(file_bytes_list, create_labels, learning_rate, batch_size, epoch, opti, st.session_state.num_classes)
+                        
                         if response.ok:
                             st.success("학습 완료 : )")
+                            st.balloons()
                         else:
                             st.error("학습 실패 : (")
                             st.write(response)
@@ -535,49 +546,20 @@ def main():
                     
                     if test_image:
                         # png, jpg같이 채널이 차이나는 파일에 대한 채널수 동일 코드
-                        test_file_byte= test_image.read()
-                        test_image_tmp = Image.open(BytesIO(test_file_byte))
-                        test_image_rgb = test_image_tmp.convert('RGB')
-                        test_byte_arr = BytesIO()
-                        test_image_rgb.save(test_byte_arr, format='JPEG')
-                        file_byte_test = test_byte_arr.getvalue()
-                        file_bytes_test_list.append(('files', BytesIO(file_byte_test)))
-                        pred = requests.post("http://localhost:8001/img_test", files=file_bytes_test_list)
+                        pred = test_image_upload_request(test_image)
 
                 _, test_img, _ = st.columns([0.7, 8, 0.5])
 
                 with test_img:
                     if test_image:
-                        img = Image.open(test_image)
-                        resize_img = img.resize((450, 450))  
-                        st.image(resize_img)
-                        st.caption('file name : ' + test_image.name + ' / ' + 'size : ' + str(test_image.size / 1000) + 'KB')
+                        test_preview_img(test_image)
 
             with test_pred_prob:
                 if test_image:
                     st.write('예측 결과')
 
                     if pred.ok:
-                        prediction = pred.json()
-
-                        # prediction 결과를 담기 위한 DataFrame 생성
-                        pred_df = pd.DataFrame(columns=['class_name', 'prediction_probability'])
-
-                        for idx, pred_result in enumerate(prediction['prediction']):
-                            pred_df.loc[idx] = [pred_result[0], round(pred_result[1] * 100, 2)]
-                        _, pred_result = st.columns([3, 7])
-                        with pred_result:
-                            with st.container():
-                                st.markdown("해당 사진은 "+ str(round(prediction['prediction'][0][1] * 100, 2)) +"%의 확률로 '__"+  prediction['prediction'][0][0] +"__' 입니다.")
-
-                        base = alt.Chart(pred_df, height=550).encode(x='prediction_probability',
-                                                                    y='class_name:N',
-                                                                    color=alt.Color('class_name:N', scale=alt.Scale(scheme='category10')),
-                                                                    text='prediction_probability'
-                                                                    )
-                        # size=alt.value(30): 막대 굵기, align='left': , dx=10: 막대와의 거리, fontSize=20: 글자 사이즈
-                        chart = base.mark_bar().encode(size=alt.value(30)) + base.mark_text(align='left', dx=10, fontSize=20)
-                        st.altair_chart(chart, use_container_width=True)
+                        prediction_result(pred)
                     else:
                         st.error('모델을 학습시켜 주세요 : <')
                 else:
@@ -593,6 +575,7 @@ def main():
                     st.download_button(label = '모델 다운로드',
                                     data = image_classification_model.content,
                                     file_name = 'image_classification_model.pth')
+
 # For running this file individually
 # if __name__ == "__main__":
 #     app()
