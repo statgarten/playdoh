@@ -40,10 +40,6 @@ transform_img = transforms.Compose([
 
 # create model
 def create_model(num_classes, device):
-    
-    # 폴더를 만들고 다운로드 받아서 넣어주기
-    # 그리고 그 폴더에 있는 모델을 로드해서 모델 돌리는 것으로 진행
-    # gitignore에 폴더 삽입
 
     # 가중치 파일 경로
     weight_path = "mobilenet_v3/mobilenetv3-large.pth"
@@ -130,7 +126,8 @@ async def train_model_endpoint(labels:list[str],
     # 3. Train the model with HP
     model = train_model(learning_rate, epoch, dataloader, device, model, opti)
 
-    torch.save(model, 'image_classification_model.pth')
+    # 저장 시 trained model 폴더로
+    torch.save(model, 'trained_model/image_classification_model.pth')
 
     return model
 
@@ -143,9 +140,8 @@ async def test_model_endpoint(files: list[UploadFile] = File(...)):
 
     global encoder
     global device
-
     # model load
-    model = torch.load("image_classification_model.pth", map_location=device)
+    model = torch.load("trained_model/image_classification_model.pth", map_location=device)
     model.eval()
 
     # predict test_img 
@@ -172,6 +168,6 @@ async def test_model_endpoint(files: list[UploadFile] = File(...)):
 @app.get("/model_download")
 def download_model():
 
-    model_path = 'image_classification_model.pth'
+    model_path = 'trained_model/image_classification_model.pth'
 
     return FileResponse(path=model_path, filename=model_path, media_type='application/octet-stream')

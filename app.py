@@ -18,7 +18,20 @@ def main():
     }
     
     app_choice = st.sidebar.selectbox("Choose an application", options=list(app_options.keys()))
-    
+
+    # 기본이 english
+    if 'ko_en' not in st.session_state:
+        st.session_state['ko_en'] = True
+
+    with st.sidebar:
+        en, ko = st.columns([1, 1])
+        with en:
+            if st.button('English', use_container_width=True) :
+                st.session_state.ko_en = True
+        with ko:
+            if st.button('한국어', use_container_width=True) :
+                st.session_state.ko_en = False
+
     app_options[app_choice].main()
 
 if __name__ == "__main__":
