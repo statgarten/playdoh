@@ -66,7 +66,19 @@ def css_style():
                 unsafe_allow_html=True,
             )
 
+# add class
+def class_count_plus():
+    if st.session_state['num_classes'] >= 5:
+        st.session_state['num_classes'] = 5
+    else:
+        st.session_state['num_classes'] += 1
 
+# delete class
+def class_count_minus():
+    if st.session_state['num_classes'] <= 2:
+        st.session_state['num_classes'] = 2
+    else:
+        st.session_state['num_classes'] -= 1
 
 def main():
 
@@ -80,6 +92,12 @@ def main():
 
     # True : english
     if st.session_state['ko_en']:
+
+        _, add_class, del_class, _ = st.columns([0.2, 0.8, 1, 9])
+        with add_class:
+            st.button('Add class', on_click=class_count_plus)
+        with del_class:
+            st.button('Delete class', on_click=class_count_minus)
 
         # st.session_state['explanation'] 초기화
         if 'explanation' in st.session_state:
@@ -334,6 +352,12 @@ def main():
 
         # image upload
         with st.expander('이미지 업로드', expanded=True):
+            
+            _, add_class, del_class, _ = st.columns([0.2, 1, 1, 9])
+            with add_class:
+                st.button('클래스 추가', on_click=class_count_plus)
+            with del_class:
+                st.button('클래스 삭제', on_click=class_count_minus)
 
             uploaded_images = {}
             
