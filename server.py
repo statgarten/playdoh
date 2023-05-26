@@ -158,6 +158,9 @@ async def test_model_endpoint(files: list[UploadFile] = File(...)):
     for idx, ratio in enumerate(pred_prob):
         pred_list.append((encoder.inverse_transform([idx])[0], ratio.item())) # (label, ratio)
 
+    print(pred_prob)
+    print(pred_list)
+    
     # 확률이 높은 순으로 정렬
     pred_list.sort(key = lambda x : x[1], reverse=True)
 

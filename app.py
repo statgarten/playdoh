@@ -21,16 +21,16 @@ def main():
 
     # 기본이 english
     if 'ko_en' not in st.session_state:
-        st.session_state['ko_en'] = True
+        st.session_state['ko_en'] = 'en'
 
     with st.sidebar:
         en, ko = st.columns([1, 1])
         with en:
             if st.button('English', use_container_width=True) :
-                st.session_state.ko_en = True
+                st.session_state.ko_en = 'en'
         with ko:
             if st.button('한국어', use_container_width=True) :
-                st.session_state.ko_en = False
+                st.session_state.ko_en = 'ko'
 
     app_options[app_choice].main()
 
