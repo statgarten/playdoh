@@ -1,0 +1,46 @@
+{
+  "ko":{
+
+      "sub_title":"이미지 분류",
+
+      "expander_image":"이미지 업로드",
+
+      "add_class_button":"클래스 추가",
+      "del_class_button":"클래스 삭제",
+
+      "class_name":"클래스 이름",
+      "class_num":"클래스",
+
+      "train_image_preview":"미리보기 할 이미지를 선택해주세요",
+      "train_image_prev":"← 이전",
+      "train_image_next":"다음 →",
+
+      "upload_train_image":"학습 이미지를 업로드해주세요",
+
+      "expander_train":"모델 학습",
+
+      "HP_learning_rate":"**_학습률 :question:_**",
+      "HP_batch_size":"**_배치 사이즈 :question:_**",
+      "HP_epoch":"**_에포크 :question:_**",
+      "HP_optimizer":"**_최적화 함수 :question:_**",
+
+      "explanation_text":"각 하이퍼파라미터의 이름 또는 ? 를 클릭하시면 설명을 보실 수 있습니다.",
+      "explanation_title":"**_하이퍼파라미터 설명_**",
+      
+      "training_model_button":"모델 학습",
+      "training_model_spinner":"모델 학습중..",
+      "training_model_complete":"학습 완료 : )",
+      "training_model_error":"학습 실패 : (",
+
+      "expander_test":"모델 테스트",
+
+      "upload_test_image":"테스트 이미지를 업로드 해주세요",
+      
+      "prediction_result":"예측 결과",
+      
+      "please_train_model":"모델을 학습시켜 주세요 : <",
+
+      "model_download":"모델 다운로드"
+
+      }
+}

@@ -1,0 +1,46 @@
+{
+    "en":{
+
+        "sub_title":"Image Classification",
+
+        "expander_image":"Image Upload",
+
+        "add_class_button":"Add Class",
+        "del_class_button":"Delete Class",
+
+        "class_name":"name of class",
+        "class_num":"class",
+
+        "train_image_preview":"Pick preview image list",
+        "train_image_prev":"← previous",
+        "train_image_next":"next →",
+
+        "upload_train_image":"Please upload a train image",
+
+        "expander_train":"Model Train",
+
+        "HP_learning_rate":"**_Learning rate :question:_**",
+        "HP_batch_size":"**_Btach size :question:_**",
+        "HP_epoch":"**_Epoch :question:_**",
+        "HP_optimizer":"**_Optimizer :question:_**",
+
+        "explanation_text":"if you click hyper parameter name or ?, you can see hyper parameter explanation",
+        "explanation_title":"**_Explanation_**",
+        
+        "training_model_button":"Training Model",
+        "training_model_spinner":"Training Model..",
+        "training_model_complete":"Train completed : )",
+        "training_model_error":"Train error : (",
+
+        "expander_test":"Model Test",
+
+        "upload_test_image":"Upload a test image",
+        
+        "prediction_result":"Prediction result",
+        
+        "please_train_model":"Please Train Model : <",
+
+        "model_download":"Download Model"
+
+        }
+}
