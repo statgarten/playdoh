@@ -134,5 +134,6 @@ dmypy.json
 
 .DS_Store
 
-# mobilenet_v3
+# models
 mobilenet_v3/
+kobert_ft/

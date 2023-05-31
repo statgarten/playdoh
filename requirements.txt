@@ -1,3 +1,5 @@
+kobert-tokenizer @ git+https://github.com/SKTBrain/KoBERT.git#egg=kobert_tokenizer&subdirectory=kobert_hf
+sentencepiece 
 streamlit
 scikit-learn
 pandas
@@ -12,3 +14,4 @@ python-multipart
 uvicorn 
 torchaudio
 librosa
+emoji

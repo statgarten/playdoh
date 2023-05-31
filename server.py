@@ -20,6 +20,8 @@ import numpy as np
 
 app = FastAPI()
 
+######## Image Calssification ########
+
 # LabelEncdoing
 def label_encoding(labels):
     
@@ -174,3 +176,5 @@ def download_model():
     model_path = 'trained_model/image_classification_model.pth'
 
     return FileResponse(path=model_path, filename=model_path, media_type='application/octet-stream')
+
+######## Sentiment Analysis ########
