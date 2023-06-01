@@ -28,7 +28,7 @@
       "explanation_title":"**_하이퍼파라미터 설명_**",
       
       "training_model_button":"모델 학습",
-      "training_model_spinner":"모델 학습중..",
+      "training_model_spinner":"모델 학습중입니다. 다른 버튼을 누르지 마세요.",
       "training_model_complete":"학습 완료 : )",
       "training_model_error":"학습 실패 : (",
 

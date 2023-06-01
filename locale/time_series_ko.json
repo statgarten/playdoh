@@ -1,7 +1,7 @@
 {
-    "en":{
+    "ko":{
 
-        "sub_title":"Image Classification",
+        "sub_title":"시계열 예측",
 
         "expander_image":"Image Upload",
 
@@ -15,7 +15,7 @@
         "train_image_prev":"← previous",
         "train_image_next":"next →",
 
-        "upload_train_image":"Please upload a train image",
+        "upload_train_csv":"Please upload a train image",
 
         "expander_train":"Model Train",
 

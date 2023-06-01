@@ -1,7 +1,7 @@
 {
     "en":{
 
-        "sub_title":"Image Classification",
+        "sub_title":"Time series Forecasting",
 
         "expander_image":"Image Upload",
 
@@ -15,7 +15,7 @@
         "train_image_prev":"← previous",
         "train_image_next":"next →",
 
-        "upload_train_image":"Please upload a train image",
+        "upload_train_csv":"Please upload a csv",
 
         "expander_train":"Model Train",
 

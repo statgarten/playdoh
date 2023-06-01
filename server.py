@@ -174,3 +174,9 @@ def download_model():
     model_path = 'trained_model/image_classification_model.pth'
 
     return FileResponse(path=model_path, filename=model_path, media_type='application/octet-stream')
+
+@app.post("/time_train")
+async def time_train_endpoint(file : UploadFile = File(...)):
+    
+    print(BytesIO(await file.read()))
+    return {'message':'success'}
