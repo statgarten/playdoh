@@ -5,8 +5,9 @@ import torch.optim as optim # 최적화 함수
 import torchvision.transforms as transforms # 전처리
 
 from torch.utils.data import DataLoader
+from torch.autograd import Variable
 
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 
 from fastapi import FastAPI, UploadFile, File, Form 
 from starlette.responses import FileResponse
@@ -17,6 +18,7 @@ from io import BytesIO
 # MobilenetV3를 구성하기 위해 py와 가중치파일을 따로 폴더에 넣기
 import mobilenet_v3.mobilenetv3 as mobilenetv3
 import numpy as np
+import pandas as pd
 
 app = FastAPI()
 
@@ -91,6 +93,181 @@ def train_model(learning_rate, num_epochs, dataloader, device, model, opti):
             
     return model
 
+# ----------------------------------------------------------------------
+# time_series_def
+# 결측치 제거
+def drop_null(df):
+    if sum(df.isnull().sum()) > 0:
+        df = df.dropna()
+    return df
+
+# train data과 test data 분리
+def train_test_data_split(df, train_s, train_e, test_s, test_e, date, col):
+    
+    train = df[train_s : train_e]
+    test = df[test_s : test_e]
+    
+    train = train[[date, col]].set_index(date)
+    test = test[[date, col]].set_index(date)
+    
+    return train, test
+
+# 정답 데이터와 입력 데이터 분리
+# 윈도우 사이즈 별로 스케일링
+
+# series_data, window_size, horizon, 예측컬럼, 날짜컬럼
+# X, Y = seq2dataset(feature_np, w, h)
+def seq2dataset_and_scaling(df, window, horizon, col, scaler):
+    
+    X = [] # 입력 데이터를 저장하는 list
+    Y = [] # 정답 데이터를 저장하는 list
+    
+    scaler.fit_transform(df[[col]])
+    
+    # seq = feature_np / feature_np -> feature_np = scaled_df[int_col]
+    for i in range(len(df)-(window+horizon) + 1):
+        # window_size만 끊어서 정규화하여 입력 데이터로 분리
+        # 여기서 x는 60개의 데이터를 뽑아냄
+        # data_df[[col]][i:(i+window)] 슬라이싱 이용하여 [[..], [..], [..]] 형상으로 X데이터를 생성함
+        x = scaler.transform(df[[col]][i:(i+window)])
+        y = scaler.transform(df[[col]][i+window+horizon-1:])
+        # -> 결과가 이상하게 나오는 이유 의심
+        #    scaling할 때랑 inverse할 때 다른 scaler를 쓰기 때문?
+        y = y[horizon-1]
+        # 여기서 y는 60개의 데이터 다음인 61번째의 데이터를 정답데이터로 삽입
+        X.append(x)
+        Y.append(y)
+    
+    return np.array(X), np.array(Y)
+    # x.shape = [[...], [...], [...], ...] 은 2차원 행렬인데, np.array(X)를 통해서 
+    # (batch_size, time_steps, input_dims) 형상을 가지는 3차원 텐서로 변환되어 리턴
+
+# Numpy array상태로는 학습이 불가능하므로, Torch Variable 형태로 변경(data/grad/grad_fn)
+def numpy_to_torch(train_x, train_y, test_x, test_y):
+    
+    train_x_tensor = Variable(torch.Tensor(train_x)) # torch.Tensor
+    train_y_tensor = Variable(torch.Tensor(train_y))
+
+    test_x_tensor = Variable(torch.Tensor(test_x))
+    test_y_tensor = Variable(torch.Tensor(test_y))
+
+    return train_x_tensor, train_y_tensor, test_x_tensor, test_y_tensor
+
+# 마지막으로 학습을 시키기 위해 reshape 조정
+def torch_reshape(train_x_tensor, train_y_tensor, test_x_tensor, test_y_tensor):
+    
+    train_x_tensor_final = torch.reshape(train_x_tensor, (train_x_tensor.shape[0], 1, train_x_tensor.shape[1])) # torch.Tensor
+    train_y_tensor_final = torch.reshape(train_y_tensor, (train_y_tensor.shape[0], 1, train_y_tensor.shape[1]))
+    
+    test_x_tensor_final = torch.reshape(test_x_tensor, (test_x_tensor.shape[0], 1, test_x_tensor.shape[1]))
+    test_y_tensor_final = torch.reshape(test_y_tensor,(test_y_tensor.shape[0], 1, test_y_tensor.shape[1]))
+    
+    return train_x_tensor_final, train_y_tensor_final, test_x_tensor_final, test_y_tensor_final
+
+# 모델 생성
+# in_channel, out_channels, stride, padding의 관계를 파악해서 숫자를 넣어줘야함
+class LSTM_(nn.Module):
+    
+    def __init__(self, input_dim, hidden_dim, num_layers, output_dim):
+        super(LSTM_, self).__init__()
+        
+        self.hidden_dim = hidden_dim
+        self.num_layers = num_layers
+        self.input_dim = input_dim
+
+        self.lstm =nn.LSTM(input_dim, hidden_dim, num_layers, batch_first =True)
+        self.fc = nn.Linear(hidden_dim, output_dim)
+        
+    def forward(self, x):
+        h0, c0 = self.init_hidden(x)
+        out,(hn, cn)=self.lstm(x, (h0,c0))
+        out = self.fc(out[:,-1,:])
+        return out
+    
+    def init_hidden(self,x):
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim)
+        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim)
+        return h0, c0
+
+# 모델 훈련
+def train_time_model(device, learning_rate, num_epochs, in_channel, train_x_tensor_final, train_y_tensor):
+    
+    global LSTM_
+    
+    model = LSTM_(input_dim=in_channel,hidden_dim=30,output_dim=1,num_layers=2).to(device)
+
+    loss_function = torch.nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
+
+    best_loss = 10 ** 9 # 최대한 높게 선정
+    patience_limit = 20 # 몇 번의 epoch까지 지켜볼지를 결정
+    patience_check = 0 # 현재 몇 epoch 연속으로 loss 개선이 안되는지를 기록
+    
+    for epoch in range(num_epochs): 
+
+        # outputs = LSTM_.forward(train_x_tensor_final.to(device))
+        outputs = model(train_x_tensor_final.to(device))
+
+        optimizer.zero_grad()
+
+        loss = loss_function(outputs, train_y_tensor.to(device))
+
+        loss.backward()
+
+        optimizer.step() # improve from loss = back propagation
+
+        print("Epoch : %d, loss : %1.5f" % (epoch, loss.item()))
+            
+        ### early stopping 여부를 체크하는 부분 ###
+        if loss > best_loss: # loss가 개선되지 않은 경우
+            patience_check += 1
+            if patience_check >= patience_limit: # early stopping 조건 만족 시 조기 종료
+                break
+        else: # loss가 개선된 경우
+            best_loss = loss
+            patience_check = 0
+            
+    return model.eval() # eval모드로 model를 return
+
+# 모델 테스트
+def test_time_model(model, test_x_tensor_final, scaler, device):
+    
+    # Estimated Value
+    test_predict = model(test_x_tensor_final.to(device)) #Forward Pass
+    
+    predict_data = test_predict.data.detach().cpu().numpy() #numpy conversion
+    # cpu로 이동시켜서 numpy배열로 변환하는 이유
+    # 작은 규모의 연산이거나 메모리 요구 사항이 적은 경우 CPU가 더 효율적일 수 있는 가능성 존재
+    # 따라서, GPU를 사용하여 예측을 수행한 후, 예측값을 가져와 역정규화하는 경우에는 CPU로 데이터를 이동시키는 것이 자연스럽고
+    # 역정규화는 단일 예측값에 대해 수행되는 간단한 계산이므로 CPU로 데이터를 이동시키는 것이 더 효율적일 수 있다.
+    # 또한, GPU 메모리를 확보하기 위해서도 CPU로 데이터를 이동시키는 경우도 존재.
+    
+    predict_data = scaler.inverse_transform(predict_data) #inverse normalization(Min/Max)
+    
+    pred_lst = [i[0] for i in predict_data]
+    
+    return pred_lst
+
+# 추가적인 데이터 예측
+def plus_pred(model, input_sequense, num_features, scaler, device):
+    
+    input_sequense = input_sequense[[-1]]
+    for i in range(num_features):
+        plus_predict = model(input_sequense.to(device))
+        plus_tensor = torch.cat([input_sequense.squeeze(0).to(device), plus_predict[[0]]], dim=1)[0][1:].unsqueeze(0).unsqueeze(0)
+        if i != 0:
+            plus_test_tensor = torch.cat([plus_test_tensor.to(device), plus_tensor.to(device)])
+        else:
+            plus_test_tensor = plus_tensor
+        input_sequense = plus_tensor
+    
+    test_plus_predict = model(plus_test_tensor.to(device)) #Forward Pass
+    predict_plus_data = test_plus_predict.data.detach().cpu().numpy() #numpy conversion
+    predict_plus_data = scaler.inverse_transform(predict_plus_data) #inverse normalization(Min/Max)
+    
+    return predict_plus_data
+
+# -----------------------------------------------------------------------
 # images: dict[str, list[UploadFile]] = File(...)
 # labels:list[str], 
 @app.post("/img_train")
@@ -175,8 +352,74 @@ def download_model():
 
     return FileResponse(path=model_path, filename=model_path, media_type='application/octet-stream')
 
-@app.post("/time_train")
-async def time_train_endpoint(file : UploadFile = File(...)):
+# training and prediction 
+@app.post("/time_train_pred")
+async def time_train_endpoint(data_arranges:list[str],
+                              pred_col: str = Form(...),
+                              date: str = Form(...),
+                              window_size: int = Form(...),
+                              horizon_factor: int = Form(...),
+                              epoch: int = Form(...),
+                              learning_rate: float = Form(...),
+                              file : UploadFile = File(...)):
     
-    print(BytesIO(await file.read()))
-    return {'message':'success'}
+    device = 'cuda' if tc.is_available() else 'cpu'
+
+    num_features = 30
+
+    content = await file.read()
+    train_df = pd.read_csv(BytesIO(content), encoding='utf-8')
+
+    train_df[date] = pd.to_datetime(train_df[date])
+
+    # null remove
+    train_df = drop_null(train_df)
+
+    # data split
+    train, test = train_test_data_split(train_df, 
+                                        int(data_arranges[0]), 
+                                        int(data_arranges[1]), 
+                                        int(data_arranges[2]), 
+                                        int(data_arranges[3]), date, pred_col) # DataFrame
+    print('Training shape :', train.shape)
+    print('Testing shape :', test.shape) 
+
+    scaler = MinMaxScaler()
+
+    # 훈련데이터와 테스트데이터 를 각각 정규화 및 정답데이터 훈련데이터 분리
+    train_x, train_y = seq2dataset_and_scaling(train, window_size, horizon_factor, pred_col, scaler) # numpy_array
+    test_x, test_y = seq2dataset_and_scaling(test, window_size, horizon_factor, pred_col, scaler)
+
+    scaler.fit_transform(test[[pred_col]])
+
+    # Check Data pre-processing
+    print("Training shape :", train_x.shape, train_y.shape)
+    print("Testing shape :", test_x.shape, test_y.shape)
+
+    # Numpy array상태로는 학습이 불가능하므로, Torch Variable 형태로 변경(data/grad/grad_fn)
+    train_x_tensor, train_y_tensor, test_x_tensor, test_y_tensor = numpy_to_torch(train_x, train_y, test_x, test_y)
+    print("Training shape :", train_x_tensor.shape, train_y_tensor.shape)
+    print("Testing shape :", test_x_tensor.shape, test_y_tensor.shape)
+
+    # torch형태를 reshape하여 최종 학습 형태로 변환
+    train_x_tensor_final, train_y_tensor_final, test_x_tensor_final, test_y_tensor_final = torch_reshape(train_x_tensor, train_y_tensor, test_x_tensor, test_y_tensor)
+    print("Training shape :", train_x_tensor_final.shape, train_y_tensor_final.shape)
+    print("Testing shape :", test_x_tensor_final.shape, test_y_tensor_final.shape)
+
+    # 모델 훈련
+    time_series_model = train_time_model(device, learning_rate, epoch, window_size, train_x_tensor_final, train_y_tensor)
+
+    # 모델 가중치 저장
+    torch.save(time_series_model.state_dict(), 'trained_model/time_series_forecasting.pth')
+
+    # 모델 테스트
+    pred_lst = test_time_model(time_series_model, test_x_tensor_final, scaler, device)
+
+    # 추가적인 데이터 예측
+    input_sequense = test_x_tensor_final[[-1]]
+    predict_plus_data = plus_pred(time_series_model, input_sequense, num_features, scaler, device)
+
+    pred_list = [float(i) for i in pred_lst]
+    pred_plus_list = [float(i[0]) for i in predict_plus_data]
+
+    return {'pred_list':pred_list, 'pred_plus_list':pred_plus_list}

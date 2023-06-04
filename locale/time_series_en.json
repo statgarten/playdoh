@@ -3,42 +3,37 @@
 
         "sub_title":"Time series Forecasting",
 
-        "expander_image":"Image Upload",
+        "expander_upload_arrange":"Uplaod file and Decide date scope",
 
-        "add_class_button":"Add Class",
-        "del_class_button":"Delete Class",
+        "decide_date_column":"Decide date column",
+        "decide_pred_column":"Decide prediction column",
 
-        "class_name":"name of class",
-        "class_num":"class",
+        "invalid_format":"Invalid format.",
 
-        "train_image_preview":"Pick preview image list",
-        "train_image_prev":"← previous",
-        "train_image_next":"next →",
+        "train_data_arrange":"Decide train data scope",
+        "val_data_arrange":"Decide validation data scope",
+        "pred_data_arrange":"Decide prediction data scope",
+
+        "date_column_not_exist_select_column":"Decided column is not exist or Please select the correct column",
 
         "upload_train_csv":"Please upload a csv",
 
-        "expander_train":"Model Train",
+        "upload_info":"if you uploads file, you can choice column and decide data scope",
+
+        "expander_train_prediction":"Training Model and prediction",
 
         "HP_learning_rate":"**_Learning rate :question:_**",
-        "HP_batch_size":"**_Btach size :question:_**",
         "HP_epoch":"**_Epoch :question:_**",
-        "HP_optimizer":"**_Optimizer :question:_**",
+        "HP_window_size":"**_Window size :question:_**",
+        "HP_horizon_factor":"**_Horizion Factor :question:_**",
 
-        "explanation_text":"if you click hyper parameter name or ?, you can see hyper parameter explanation",
         "explanation_title":"**_Explanation_**",
+        "explanation_text":"if you click hyperparameter name or ?, you can see hyperparameter explanation",
         
-        "training_model_button":"Training Model",
-        "training_model_spinner":"Model is training. Don't click other button",
-        "training_model_complete":"Train completed : )",
-        "training_model_error":"Train error : (",
+        "training_validation_model_button":"Training Model and validation",
+        "prediction_model_button":"Prediction",
 
-        "expander_test":"Model Test",
-
-        "upload_test_image":"Upload a test image",
-        
-        "prediction_result":"Prediction result",
-        
-        "please_train_model":"Please Train Model : <",
+        "pred_graph" : "if training, validation and prediction is progressed, you can see result graph",
 
         "model_download":"Download Model"
 
