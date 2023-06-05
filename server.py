@@ -23,7 +23,6 @@ import pandas as pd
 app = FastAPI()
 
 ######## Image Calssification ########
-
 # LabelEncdoing
 def label_encoding(labels):
     
@@ -95,8 +94,92 @@ def train_model(learning_rate, num_epochs, dataloader, device, model, opti):
             
     return model
 
-# ----------------------------------------------------------------------
-# time_series_def
+# images: dict[str, list[UploadFile]] = File(...)
+# labels:list[str], 
+@app.post("/img_train")
+async def train_model_endpoint(labels:list[str], 
+                               learning_rate: float = Form(...), 
+                               batch_size: int = Form(...),
+                               epoch: int = Form(...),
+                               opti: str = Form(...), 
+                               num_classes: int = Form(...),
+                               files: list[UploadFile] = File(...)):
+    global encoder
+    # encode label
+    encoder, train_labels = label_encoding(labels)
+    encoder = encoder
+
+    global device
+    # set gpu or cpu 
+    device = 'cuda' if tc.is_available() else 'cpu'
+
+    # create dataset
+    # 1. Image transform
+    dataset = []
+    for file, label in zip(files, train_labels):
+        image = Image.open(BytesIO(await file.read()))
+        image = transform_img(image)
+        dataset.append((image, label))
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)    
+    
+    global model
+    # 2. Create the model 
+    model = create_model(num_classes, device)
+    
+    # 3. Train the model with HP
+    model = train_model(learning_rate, epoch, dataloader, device, model, opti)
+
+    # 저장 시 trained model 폴더로
+    torch.save(model, 'trained_model/image_classification_model.pth')
+
+    return model
+
+# image test
+@app.post("/img_test")
+async def test_model_endpoint(files: list[UploadFile] = File(...)):
+
+    # 다른 post에서 생성한 전역변수
+    # global model
+
+    global encoder
+    global device
+    # model load
+    model = torch.load("trained_model/image_classification_model.pth", map_location=device)
+    model.eval()
+
+    # predict test_img 
+    for file in files:
+        image = Image.open(BytesIO(await file.read()))
+        image = transform_img(image)
+        img_tensor = image.unsqueeze(0)  # 배치 차원 추가
+        img_tensor = img_tensor.to(device)
+
+        output = model(img_tensor)
+        pred_prob = torch.softmax(output, dim=1)[0]  # 소프트맥스 함수를 통해 예측 확률 계산
+    
+    pred_list = [] # return할 예측 리스트
+    for idx, ratio in enumerate(pred_prob):
+        pred_list.append((encoder.inverse_transform([idx])[0], ratio.item())) # (label, ratio)
+
+    print(pred_prob)
+    print(pred_list)
+    
+    # 확률이 높은 순으로 정렬
+    pred_list.sort(key = lambda x : x[1], reverse=True)
+
+    return {'prediction':pred_list}
+
+# model download endpoint
+@app.get("/model_download")
+def download_model():
+
+    model_path = 'trained_model/image_classification_model.pth'
+
+    return FileResponse(path=model_path, filename=model_path, media_type='application/octet-stream')
+
+######## Image Calssification End ########
+
+########### Time Forecasting #############
 # 결측치 제거
 def drop_null(df):
     if sum(df.isnull().sum()) > 0:
@@ -116,7 +199,6 @@ def train_test_data_split(df, train_s, train_e, test_s, test_e, date, col):
 
 # 정답 데이터와 입력 데이터 분리
 # 윈도우 사이즈 별로 스케일링
-
 # series_data, window_size, horizon, 예측컬럼, 날짜컬럼
 # X, Y = seq2dataset(feature_np, w, h)
 def seq2dataset_and_scaling(df, window, horizon, col, scaler):
@@ -167,7 +249,6 @@ def torch_reshape(train_x_tensor, train_y_tensor, test_x_tensor, test_y_tensor):
     return train_x_tensor_final, train_y_tensor_final, test_x_tensor_final, test_y_tensor_final
 
 # 모델 생성
-# in_channel, out_channels, stride, padding의 관계를 파악해서 숫자를 넣어줘야함
 class LSTM_(nn.Module):
     
     def __init__(self, input_dim, hidden_dim, num_layers, output_dim):
@@ -269,91 +350,6 @@ def plus_pred(model, input_sequense, num_features, scaler, device):
     
     return predict_plus_data
 
-# -----------------------------------------------------------------------
-# images: dict[str, list[UploadFile]] = File(...)
-# labels:list[str], 
-@app.post("/img_train")
-async def train_model_endpoint(labels:list[str], 
-                               learning_rate: float = Form(...), 
-                               batch_size: int = Form(...),
-                               epoch: int = Form(...),
-                               opti: str = Form(...), 
-                               num_classes: int = Form(...),
-                               files: list[UploadFile] = File(...)):
-    global encoder
-    # encode label
-    encoder, train_labels = label_encoding(labels)
-    encoder = encoder
-
-    global device
-    # set gpu or cpu 
-    device = 'cuda' if tc.is_available() else 'cpu'
-
-    # create dataset
-    # 1. Image transform
-    dataset = []
-    for file, label in zip(files, train_labels):
-        image = Image.open(BytesIO(await file.read()))
-        image = transform_img(image)
-        dataset.append((image, label))
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)    
-    
-    global model
-    # 2. Create the model 
-    model = create_model(num_classes, device)
-    
-    # 3. Train the model with HP
-    model = train_model(learning_rate, epoch, dataloader, device, model, opti)
-
-    # 저장 시 trained model 폴더로
-    torch.save(model, 'trained_model/image_classification_model.pth')
-
-    return model
-
-# image test
-@app.post("/img_test")
-async def test_model_endpoint(files: list[UploadFile] = File(...)):
-
-    # 다른 post에서 생성한 전역변수
-    # global model
-
-    global encoder
-    global device
-    # model load
-    model = torch.load("trained_model/image_classification_model.pth", map_location=device)
-    model.eval()
-
-    # predict test_img 
-    for file in files:
-        image = Image.open(BytesIO(await file.read()))
-        image = transform_img(image)
-        img_tensor = image.unsqueeze(0)  # 배치 차원 추가
-        img_tensor = img_tensor.to(device)
-
-        output = model(img_tensor)
-        pred_prob = torch.softmax(output, dim=1)[0]  # 소프트맥스 함수를 통해 예측 확률 계산
-    
-    pred_list = [] # return할 예측 리스트
-    for idx, ratio in enumerate(pred_prob):
-        pred_list.append((encoder.inverse_transform([idx])[0], ratio.item())) # (label, ratio)
-
-    print(pred_prob)
-    print(pred_list)
-    
-    # 확률이 높은 순으로 정렬
-    pred_list.sort(key = lambda x : x[1], reverse=True)
-
-    return {'prediction':pred_list}
-
-
-# model download endpoint
-@app.get("/model_download")
-def download_model():
-
-    model_path = 'trained_model/image_classification_model.pth'
-
-    return FileResponse(path=model_path, filename=model_path, media_type='application/octet-stream')
-
 # training and prediction 
 @app.post("/time_train_pred")
 async def time_train_endpoint(data_arranges:list[str],
@@ -425,3 +421,5 @@ async def time_train_endpoint(data_arranges:list[str],
     pred_plus_list = [float(i[0]) for i in predict_plus_data]
 
     return {'pred_list':pred_list, 'pred_plus_list':pred_plus_list}
+
+########### Time Forecasting end #############
