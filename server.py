@@ -22,6 +22,8 @@ import pandas as pd
 
 app = FastAPI()
 
+######## Image Calssification ########
+
 # LabelEncdoing
 def label_encoding(labels):
     
