@@ -146,7 +146,7 @@ def main():
                         train_end = train_e.date_input('',pd.to_datetime(train_df[date][ratio]), label_visibility='hidden')
 
                         _, val_s, _, val_e = st.columns([1, 3, 0.5, 3])
-                        val_start = val_s.date_input(val_data_arrange, pd.to_datetime(train_df[date][ratio+1]))
+                        val_start = val_s.date_input(val_data_arrange, train_end + datetime.timedelta(days=1))
                         val_end = val_e.date_input('', pd.to_datetime(train_df[date][len(train_df[date])-1]), label_visibility='hidden')
 
                         _, pred_s, _, pred_e = st.columns([1, 3, 0.5, 3])
@@ -167,7 +167,6 @@ def main():
             else:
                 st.info(upload_info)
                 
-
     with st.expander(expander_train_prediction, expanded=False):
 
         _, choice_hp, _, result, _ = st.columns([0.3, 3, 0.3, 7, 0.3])
