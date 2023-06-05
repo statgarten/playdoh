@@ -1,0 +1,41 @@
+{
+    "en":{
+
+        "sub_title":"Time series Forecasting",
+
+        "expander_upload_arrange":"Uplaod file and Decide date scope",
+
+        "decide_date_column":"Decide date column",
+        "decide_pred_column":"Decide prediction column",
+
+        "invalid_format":"Invalid format.",
+
+        "train_data_arrange":"Decide train data scope",
+        "val_data_arrange":"Decide validation data scope",
+        "pred_data_arrange":"Decide prediction data scope",
+
+        "date_column_not_exist_select_column":"Decided column is not exist or Please select the correct column",
+
+        "upload_train_csv":"Please upload a csv",
+
+        "upload_info":"if you uploads file, you can choice column and decide data scope",
+
+        "expander_train_prediction":"Training Model and prediction",
+
+        "HP_learning_rate":"**_Learning rate :question:_**",
+        "HP_epoch":"**_Epoch :question:_**",
+        "HP_window_size":"**_Window size :question:_**",
+        "HP_horizon_factor":"**_Horizion Factor :question:_**",
+
+        "explanation_title":"**_Explanation_**",
+        "explanation_text":"if you click hyperparameter name or ?, you can see hyperparameter explanation",
+        
+        "training_validation_model_button":"Training Model and validation",
+        "prediction_model_button":"Prediction",
+
+        "pred_graph" : "if training, validation and prediction is progressed, you can see result graph",
+
+        "model_download":"Download Model"
+
+        }
+}

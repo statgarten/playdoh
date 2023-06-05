@@ -3,6 +3,7 @@ import pandas as pd
 import altair as alt
 import requests
 import json
+import re
 
 from PIL import Image
 from io import BytesIO
@@ -27,9 +28,7 @@ def test_preview_img(test_image):
 
 # 각 이미지의 데이터셋 길이만큼 label생성
 def label_create(data_set, label):
-    
     labels = [label for _ in range(len(data_set))]
-    
     return labels
 
 # add class
@@ -46,18 +45,24 @@ def class_count_minus():
     else:
         st.session_state['num_classes'] -= 1
 
+# 사진 전체 삭제
+def clear_img(num_class):
+    for i in range(num_class):
+        del st.session_state[f'uploader{i}']
+
 # 설명 세션 초기화
 def explanation_session_clear():
     if 'explanation' in st.session_state:
         del st.session_state['explanation']
 
+
 # 학습 이미지 업로드
+# @st.cache(allow_output_mutation=True)
 def train_img_upload(i, uploaded_images, class_name, file_bytes_list):
 
     images = st.file_uploader(' ',accept_multiple_files=True, key=f'uploader{i}', type=['png', 'jpg', 'jpeg', 'tiff','webp'],label_visibility='hidden') # 'tiff', 'webp'
     if images:
         uploaded_images[class_name] = [image for image in images]
-
         for image, _ in zip(images, uploaded_images[class_name]):
             # png, jpg같이 채널이 차이나는 파일에 대한 채널수 동일 코드
             file_byte = image.read()
@@ -70,6 +75,7 @@ def train_img_upload(i, uploaded_images, class_name, file_bytes_list):
     
     return file_bytes_list
 
+
 # prev, nex에 empty 생성
 def create_empty():
     for i in range(13):
@@ -81,7 +87,6 @@ def image_slide(uploaded_images, label_name):
     # 초기화
     if 'lst_no' not in st.session_state:
         st.session_state['lst_no'] = 0
-
     # image slide
     if st.session_state.lst_no >= len(uploaded_images[label_name]) - 1: 
         st.session_state.lst_no = len(uploaded_images[label_name]) - 1
@@ -112,7 +117,6 @@ def train_request(file_bytes_list, create_labels, learning_rate, batch_size, epo
 # upload test image and request
 # png, jpg같이 채널이 차이나는 파일에 대한 채널수 동일 코드
 def test_image_upload_request(test_image):
-
     file_bytes_test_list = []
 
     test_file_byte= test_image.read()
@@ -147,16 +151,35 @@ def prediction_result(pred):
                                                 color=alt.Color('class_name:N', scale=alt.Scale(scheme='category10')),
                                                 text='prediction_probability'
                                                 )
-
     # size=alt.value(30): 막대 굵기, align='left': , dx=10: 막대와의 거리, fontSize=20: 글자 사이즈
     chart = base.mark_bar().encode(size=alt.value(30)) + base.mark_text(align='left', dx=10, fontSize=20)
     st.altair_chart(chart, use_container_width=True)
+
+# 각 언어에 따른 language json load
+def load_translation(language):
+    with open(f'locale/image_{language}.json', "r", encoding='utf-8') as file:
+        translations = json.load(file)
+    return translations
+
+# 선택된 언어에 따라 번역된 텍스트를 반환합니다.
+def translate(key, language):
+    translations = load_translation(language)
+    return translations[language][key]
 
 # css 조정
 # button 모양 조정
 # fileupload text 조정
 # text_area font-color 조정
 # text_input text 조정
+#     button[kind="primary"]:hover { 
+#     text-decoration: none;
+#     color: black !important;
+# }
+# button[kind="primary"]:focus {
+#     outline: none !important;
+#     box-shadow: none !important;
+#     color: black !important;
+# }
 def css_style():
     st.markdown("""
                 <style>
@@ -169,16 +192,7 @@ def css_style():
                     cursor: pointer;
                     border: none !important;
                 }
-                button[kind="primary"]:hover {
-                    text-decoration: none;
-                    color: black !important;
-                }
-                button[kind="primary"]:focus {
-                    outline: none !important;
-                    box-shadow: none !important;
-                    color: black !important;
-                }
-
+            
                 [data-testid="stFileUploadDropzone"] div div::before {content:"Upload your image"}
                 [data-testid="stFileUploadDropzone"] div div span{display:none;}
 
@@ -194,19 +208,8 @@ def css_style():
                 unsafe_allow_html=True,
             )
 
-# 각 언어에 따른 language json load
-def load_translation(language):
-    with open(f'locale/image_{language}.json', "r", encoding='utf-8') as file:
-        translations = json.load(file)
-    return translations
-
-# 선택된 언어에 따라 번역된 텍스트를 반환합니다.
-def translate(key, language):
-    translations = load_translation(language)
-    return translations[language][key]
-
 def main():
-    # css style modify
+    # css styling
     css_style()
 
     # st.session_state['explanation'] 초기화
@@ -216,6 +219,7 @@ def main():
     if 'num_classes' not in st.session_state:
         st.session_state['num_classes'] = 2
 
+    # 해당 언어의 json load후 번역
     sub_title = translate('sub_title', st.session_state.ko_en)
 
     expander_image = translate('expander_image', st.session_state.ko_en)
@@ -257,15 +261,21 @@ def main():
         uploaded_images = {}
         # 이미지 업로드 칸과 미리보기 공간 나누기
         _, img_upload, _, img_see, _ = st.columns([0.2, 4, 0.3, 6, 0.1])
-
+        
         with img_upload:
+
+            train_labels = []
+            file_bytes_list = [] 
+
             add_class, del_class = st.columns([1, 1])
             with add_class:
                 st.button(add_class_button, on_click=class_count_plus, use_container_width=True)
             with del_class:
                 st.button(del_class_button, on_click=class_count_minus, use_container_width=True)
-            train_labels = []
-            file_bytes_list = []  
+            # with clear_all_img:
+            #     if st.button('Claer_all_img', use_container_width=True):
+            #         clear_img(st.session_state['num_classes'])
+            
             for i in range(st.session_state.num_classes):
                 # labels = []
                 # 이미지 label 이름 수정칸과 업로드 공간 분리
@@ -276,21 +286,24 @@ def main():
                     class_num = translate('class_num', st.session_state.ko_en) + f'{i + 1}'
                     class_name = st.text_input(class_name, class_num)
                     train_labels.append(class_name)
-
+                        
                 with img_load:
+                    # with st.form(f'my_form{i}', clear_on_submit=True):
                     # train image upload
                     file_bytes_list = train_img_upload(i, uploaded_images, class_name, file_bytes_list)
+            # st.write(st.session_state) # uploader0 / uploader1
+                        # clear_button = st.form_submit_button(label="Clear")
+                        # if clear_button:
+                        #     st.session_state.pop(f'my_form{i}', None)
 
         # image preview
         with img_see:
             if len(list(uploaded_images.keys())) > 0:
-
                 pick, _ = st.columns([6, 4.4])
                 with pick:
                     label_name = st.radio(train_image_preview,
                                             list(uploaded_images.keys()),
                                             horizontal = True)
-
                 _ ,prev, _, img, _, nex, _ = st.columns([0.2, 2, 0.5, 6, 0.5, 2, 0.2])
                 # ← previous
                 with prev:
@@ -349,11 +362,10 @@ def main():
         with hyper_parameter_explanation:
             if 'explanation' not in st.session_state:
                 st.session_state['explanation'] = explanation_text
-            
             st.text_area(explanation_title, st.session_state['explanation'], height = 342, disabled = True)
 
         # Images to backend (/img_train)
-        _, train_txt, train_model, _ = st.columns([12.8, 2.3, 2.0, 0.4])
+        _, train_txt, train_model, _ = st.columns([12.8, 2.7, 2.0, 0.4])
 
         # training model
         with train_model:
@@ -394,7 +406,6 @@ def main():
             with test_img_load:
                 # 1) Upload a test image and send the image to (POST)
                 test_image = st.file_uploader(upload_test_image, type=['png', 'jpg', 'jpeg','tiff','webp'], accept_multiple_files=False)
-                
                 if test_image:
                     # 테스트 사진에 대한 upload 및 request
                     pred = test_image_upload_request(test_image)

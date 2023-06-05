@@ -28,7 +28,7 @@
         "explanation_title":"**_Explanation_**",
         
         "training_model_button":"Training Model",
-        "training_model_spinner":"Training Model..",
+        "training_model_spinner":"Model is training. Don't click other button",
         "training_model_complete":"Train completed : )",
         "training_model_error":"Train error : (",
 

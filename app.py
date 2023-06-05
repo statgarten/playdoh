@@ -7,7 +7,7 @@ import time_series_forecasting as timeseries
 def main():
 
     st.set_page_config(layout="wide")
-
+ 
     st.title("AI Applications")
     
     app_options = {

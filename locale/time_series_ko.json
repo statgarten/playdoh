@@ -1,0 +1,41 @@
+{
+    "ko":{
+
+        "sub_title":"시계열 예측",
+
+        "expander_upload_arrange":"파일 업로드 및 데이터 범위 지정",
+
+        "decide_date_column":"날짜 컬럼을 지정해주세요",
+        "decide_pred_column":"예측할 컬럼을 지정해주세요.",
+
+        "invalid_format":"잘못된 형식입니다.",
+
+        "train_data_arrange":"훈련 데이터 범위를 지정해주세요",
+        "val_data_arrange":"검증 데이터 범위를 지정해주세요",
+        "pred_data_arrange":"예측 데이터 범위를 지정해주세요",
+
+        "date_column_not_exist_select_column":"해당하는 날짜의 컬럼이 존재하지 않거나 컬럼을 정확히 설정해주세요",
+
+        "upload_train_csv":"파일을 업로드 해주세요",
+
+        "upload_info":"파일 업로드시 컬럼 지정과 각 데이터 범위를 지정할 수 있습니다",
+
+        "expander_train_prediction":"모델 학습 및 예측",
+
+        "HP_learning_rate":"**_학습률 :question:_**",
+        "HP_epoch":"**_에포크 :question:_**",
+        "HP_window_size":"**_윈도우 크기 :question:_**",
+        "HP_horizon_factor":"**_요인 :question:_**",
+
+        "explanation_title":"**_하이퍼파라미터 설명_**",
+        "explanation_text":"각 하이퍼파라미터의 이름 또는 ? 를 클릭하시면 설명을 보실 수 있습니다.",
+        
+        "training_validation_model_button":"모델 학습 및 검증",
+        "prediction_model_button":"예측",
+
+        "pred_graph":"학습, 검증 및 예측이 진행 되면 결과 그래프를 보실 수 있습니다.",
+
+        "model_download":"모델 다운로드"
+
+        }
+}
