@@ -8,7 +8,7 @@ The playdoh package provides some applications that can be used easily by people
 - Text Sentiment Analysis From Text
 - Speech-to-Text Conversion
 - Time Series Forecasting
-- 
+
 ## Prerequisite
 - Docker
 - Visual Studio Code
