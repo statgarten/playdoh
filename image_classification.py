@@ -3,7 +3,6 @@ import pandas as pd
 import altair as alt
 import requests
 import json
-import re
 
 from PIL import Image
 from io import BytesIO
