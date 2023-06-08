@@ -16,7 +16,7 @@ from PIL import Image
 from io import BytesIO
 
 # MobilenetV3를 구성하기 위해 py와 가중치파일을 따로 폴더에 넣기
-import mobilenet_v3.mobilenetv3 as mobilenetv3
+import pretrained_model.mobilenet_v3.mobilenetv3 as mobilenetv3
 import numpy as np
 import pandas as pd
 
@@ -45,7 +45,7 @@ transform_img = transforms.Compose([
 def create_model(num_classes, device):
 
     # 가중치 파일 경로
-    weight_path = "mobilenet_v3/mobilenetv3-large.pth"
+    weight_path = "pretrained_model/mobilenet_v3/mobilenetv3-large.pth"
     # mobilenetv3_large 넣어주기
     model = mobilenetv3.mobilenetv3_large()
     # 가중치 파일 삽입?

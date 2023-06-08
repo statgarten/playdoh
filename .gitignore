@@ -135,5 +135,6 @@ dmypy.json
 .DS_Store
 
 # models
-mobilenet_v3/
-kobert_ft/
+pretrained_model/kobert_ft
+pretrained_model/mobilenet_v3
+trained_model/image_classification_model.pth
