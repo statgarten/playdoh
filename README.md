@@ -5,7 +5,7 @@
 The playdoh package provides some applications that can be used easily by people who are not familiar with AI. This package offers the following features:
 
 - Image Classification
-- Text Sentiment Analysis From Text
+- Sentiment Analysis From Text
 - Speech-to-Text Conversion
 - Time Series Forecasting
 
@@ -19,7 +19,7 @@ The playdoh package provides some applications that can be used easily by people
 - FastAPI
 - Pytorch
 
-## Instruction
+## Instruction for Dev
 1. Clone playdoh and open it in VS Code.
 2. Install the 'Docker' and 'Dev Containers' extensions.
 3. Press F1(or Ctrl(Cmd) + Shift + P) and select 'Dev-Containers: Add Dev Container Configuration Files' -> 'Show All Definitions' -> 'Python3', then choose your desired Python version and select any additional features to use.
