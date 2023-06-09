@@ -182,7 +182,7 @@ def main():
                 with win_size:
                     if st.button(HP_window_size, type='primary'):
                         st.session_state.explanation = HP_dict['Window size']
-                    window_size = st.text_input('', value = 20, label_visibility='collapsed') 
+                    window_size = st.text_input('', value = 30, label_visibility='collapsed') 
                 with hori_fac:
                     if st.button(HP_horizon_factor, type='primary'):
                         st.session_state.explanation = HP_dict['Horizon factor']
@@ -193,11 +193,11 @@ def main():
                 with lear_rate:
                     if st.button(HP_learning_rate, type='primary'):
                         st.session_state.explanation = HP_dict['learning_rate']
-                    learning_rate = st.text_input('', value = 0.001, label_visibility='collapsed')
+                    learning_rate = st.text_input('', value = 0.0001, label_visibility='collapsed')
                 with epo:
                     if st.button(HP_epoch, type='primary'):
                         st.session_state.explanation = HP_dict['Epoch']
-                    epoch = st.text_input('', value = 1000, label_visibility='collapsed')
+                    epoch = st.text_input('', value = 200, label_visibility='collapsed')
 
             st.text_area(explanation_title, explanation_text, height = 250, disabled = True)
 
@@ -225,7 +225,7 @@ def main():
                     if response.ok:
                         res = response.json()
                         pred_list = res['pred_list']
-                        add_pred_list = res['pred_plus_list']
+                        add_pred_list = res['predict_additional_list']
                     else:
                         st.write(response)
 
