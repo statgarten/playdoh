@@ -23,7 +23,7 @@ def line_chart(data_df, int_col, pred_list, predict_plus_data, date):
     line.loc[line.index >= len(line)-len(pred_list), 'pred'] = pred_list
     
     # 추가적으로 예측한 범위에 대해서 날짜를 하루씩 추가하여 데이터 삽입
-    for idx, count in enumerate(predict_plus_data):
+    for _, count in enumerate(predict_plus_data):
         pred_df = pd.DataFrame({'Date':[line[date][len(line)-1] + datetime.timedelta(days=1)],
                                 'raw':[np.NaN],
                                 'pred':[count]})
@@ -38,10 +38,12 @@ def line_chart(data_df, int_col, pred_list, predict_plus_data, date):
         )
     )
 
-    pred_layer = alt.Chart(line, height=400).encode(
+    pred_layer = (alt.Chart(line, height=400)
+        .encode(
             x="Date:T",
             y=alt.Y("pred:Q"),
         )
+    )
     
     chart = pred_layer.mark_line(color='red') + raw_layer.mark_line(color='blue')
     st.altair_chart(

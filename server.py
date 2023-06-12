@@ -339,12 +339,12 @@ def test_time_model(model, test_x_tensor, scaler, device):
     return inverse_pred_lst, pred_lst
 
 # 추가적인 데이터 예측
-def additional_pred(model, window_size, input_sequense, num_features, scaler, device):
+def additional_pred(model, input_sequense, num_features, scaler, device):
     
     model.eval() # model eval모드
 
     # 메모리 문제 가능성이 존재하기에 초기 값 설정
-    plus_test_tensor = torch.zeros([1, window_size, 1])
+    plus_test_tensor = torch.zeros(input_sequense.shape)
     
     # torch tensor에서 예측 데이터를 붙히는 과정
     for _ in range(num_features):
@@ -441,7 +441,7 @@ async def time_train_endpoint(data_arranges:list[str],
 
     # 추가적인 데이터 예측
     input_sequense = test_x_tensor[[-1]]
-    predict_additional_data = additional_pred(time_series_model, window_size, input_sequense, num_features, y_scaler, device)
+    predict_additional_data = additional_pred(time_series_model, input_sequense, num_features, y_scaler, device)
 
     pred_list = [float(i) for i in pred_lst]
     predict_additional_list = [float(i[0]) for i in predict_additional_data]
