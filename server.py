@@ -245,7 +245,6 @@ def numpy_to_torch(train_x, train_y, test_x, test_y):
 
 # 모델 설계
 class LSTM_(nn.Module):
-    
     def __init__(self, input_dim, hidden_dim, num_layers, output_dim):
         super(LSTM_, self).__init__()
         
@@ -340,26 +339,27 @@ def test_time_model(model, test_x_tensor, scaler, device):
     return inverse_pred_lst, pred_lst
 
 # 추가적인 데이터 예측
-def additional_pred(model, input_sequense, num_features, scaler, device):
+def additional_pred(model, window_size, input_sequense, num_features, scaler, device):
     
-    model.eval()
+    model.eval() # model eval모드
 
+    # 메모리 문제 가능성이 존재하기에 초기 값 설정
+    plus_test_tensor = torch.zeros([1, window_size, 1])
+    
     # torch tensor에서 예측 데이터를 붙히는 과정
-    for i in range(num_features):
-        plus_predict = model(input_sequense.to(device))
+    for _ in range(num_features):
+        with torch.no_grad():
+            plus_predict = model(input_sequense.to(device))
         # dimension을 맞춰 data를 concat실행 후 줄인 차원을 다시 증가시키는 과정
         # [1:]로 하는 이유 : 첫번째 이후 데이터에 예측 데이터를 붙히기 위함
         plus_tensor = torch.cat([input_sequense.squeeze(0).to(device), plus_predict[[0]]], dim=0)[1:].unsqueeze(0)
-        if i != 0:
-            plus_test_tensor = torch.cat([plus_test_tensor.to(device), plus_tensor.to(device)])
-        else:
-            plus_test_tensor = plus_tensor
+        plus_test_tensor = torch.cat([plus_test_tensor.to(device), plus_tensor.to(device)])
         input_sequense = plus_tensor
 
-    print('plus_test_tensor shape :' ,plus_test_tensor.shape)
+    print('plus_test_tensor shape :' ,plus_test_tensor[1:].shape)
     
     with torch.no_grad():
-        test_plus_predict = model(plus_test_tensor.to(device))
+        test_plus_predict = model(plus_test_tensor[1:].to(device))
     additional_predict_data = test_plus_predict.data.detach().cpu().numpy() # torch -> numpy conversion
     additional_plus_data = scaler.inverse_transform(additional_predict_data) # inverse normalization(Min/Max)
 
@@ -441,7 +441,7 @@ async def time_train_endpoint(data_arranges:list[str],
 
     # 추가적인 데이터 예측
     input_sequense = test_x_tensor[[-1]]
-    predict_additional_data = additional_pred(time_series_model, input_sequense, num_features, y_scaler, device)
+    predict_additional_data = additional_pred(time_series_model, window_size, input_sequense, num_features, y_scaler, device)
 
     pred_list = [float(i) for i in pred_lst]
     predict_additional_list = [float(i[0]) for i in predict_additional_data]
