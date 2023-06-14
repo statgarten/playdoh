@@ -34,4 +34,3 @@ uvicorn server:app --reload --host=0.0.0.0 --port=8001
 ## terminal 2
 streamlit run app.py
 ```
- 
