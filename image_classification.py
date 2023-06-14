@@ -383,7 +383,7 @@ def main():
                         response = train_request(file_bytes_list, create_labels, learning_rate, batch_size, epoch, opti, st.session_state.num_classes)
                     if response.ok: 
                         st.success(training_model_complete)
-                        st.balloons() # good
+                        # st.balloons()
                     else:
                         st.error(training_model_error)
                         st.write(response)
