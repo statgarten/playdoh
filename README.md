@@ -28,7 +28,7 @@ The playdoh package provides some applications that can be used easily by people
 6. Open 2 terminals of the container and run the following commands:
 ```
 ## terminal 1
-uvicorn server:app --reload
+uvicorn server:app --reload --host=0.0.0.0 --port=8001
 ```
 ```
 ## terminal 2
