@@ -459,11 +459,10 @@ import torch
 import pandas as pd
 
 model_name = "./pretrained_model/kobert_ft/"
-truncation_side = "right"  
-
 labels = {0: '기쁨', 1: '우울', 2: '분노', 3: '두려움', 4: '사랑', 5: '놀람', 6: '중립'}
 
-model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels = 7)
+# Load model & tokenizer 
+sentiment_analysis_model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels = 7)
 tokenizer = KoBERTTokenizer.from_pretrained(model_name, truncation_side="left") # 한국말은 끝까지 들어야해요
 
 @app.post("/sentiment_analysis")
@@ -472,12 +471,12 @@ async def predict_sentiment(request: Request):
     text = data.get('text', '')
 
     inputs = tokenizer(text, truncation=True, padding=True, max_length = 512, return_tensors="pt")
-    output = model(**inputs)
+    output = sentiment_analysis_model(**inputs)
     logits = output.logits
     probabilities = torch.nn.functional.softmax(logits, dim=-1)
-    probs = probabilities.detach().cpu().numpy()[0]
-    sent_prob = {labels[i]: float(probs[i]) for i in range(len(labels))}  
-    sentiment_predicted = labels[probs.argmax()]
+    prob_to_numpy = probabilities.detach().cpu().numpy()[0] 
+    sent_prob = {labels[i]: float(prob_to_numpy[i]) for i in range(len(labels))}  # define dictionary to make sentiment_analysis.py can get 'sent_prob' as JSON
+    sentiment_predicted = labels[prob_to_numpy.argmax()] # most probable sentiment
 
     return {"sent_prob":sent_prob, "sentiment_predicted":sentiment_predicted}
 
