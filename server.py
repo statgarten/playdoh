@@ -449,3 +449,36 @@ async def time_train_endpoint(data_arranges:list[str],
     return {'pred_list':pred_list, 'predict_additional_list':predict_additional_list}
 
 ########### Time Forecasting end #############
+
+########### Sentiment Analysis #############
+
+from fastapi import FastAPI, Request
+from transformers import AutoModelForSequenceClassification
+from kobert_tokenizer import KoBERTTokenizer
+import torch
+import pandas as pd
+
+model_name = "./pretrained_model/kobert_ft/"
+truncation_side = "right"  
+
+labels = {0: '기쁨', 1: '우울', 2: '분노', 3: '두려움', 4: '사랑', 5: '놀람', 6: '중립'}
+
+model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels = 7)
+tokenizer = KoBERTTokenizer.from_pretrained(model_name, truncation_side="left") # 한국말은 끝까지 들어야해요
+
+@app.post("/sentiment_analysis")
+async def predict_sentiment(request: Request):
+    data = await request.json()
+    text = data.get('text', '')
+
+    inputs = tokenizer(text, truncation=True, padding=True, max_length = 512, return_tensors="pt")
+    output = model(**inputs)
+    logits = output.logits
+    probabilities = torch.nn.functional.softmax(logits, dim=-1)
+    probs = probabilities.detach().cpu().numpy()[0]
+    sent_prob = {labels[i]: float(probs[i]) for i in range(len(labels))}  
+    sentiment_predicted = labels[probs.argmax()]
+
+    return {"sent_prob":sent_prob, "sentiment_predicted":sentiment_predicted}
+
+########### Sentiment Analysis End #############
