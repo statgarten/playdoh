@@ -433,8 +433,6 @@ from kobert_tokenizer import KoBERTTokenizer
 import torch
 import pandas as pd
 
-app = FastAPI()
-
 model_name = "./pretrained_model/kobert_ft/"
 truncation_side = "right"  
 
