@@ -458,7 +458,7 @@ from kobert_tokenizer import KoBERTTokenizer
 import torch
 import pandas as pd
 
-model_name = "./pretrained_model/kobert_ft/"
+model_name = "./pretrained_model/kobert_ft"
 labels = {0: '기쁨', 1: '우울', 2: '분노', 3: '두려움', 4: '사랑', 5: '놀람', 6: '중립'}
 
 # Load model & tokenizer 
