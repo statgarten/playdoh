@@ -8,7 +8,7 @@ def main():
 
     st.set_page_config(layout="wide")
  
-    st.title("AI Applications")
+    st.title("Welcome to Playdoh!")
     
     app_options = {
         "Image Classification": img_cls,

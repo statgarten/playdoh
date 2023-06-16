@@ -2,15 +2,25 @@ import streamlit as st
 import requests
 import pandas as pd
 import altair as alt
+import json
+
+def translate(key, language):
+    with open(f'locale/sentiment_{language}.json', "r", encoding='utf-8') as file:
+        translations = json.load(file)
+        return translations[language][key]
 
 def main():
-    st.header("Sentiment Analysis")
+    sub_title = translate('sub_title', st.session_state.ko_en)
+    st.header(sub_title)
+
     left_column, right_column = st.columns(2)
 
     # Text input
-    text = left_column.text_input('Enter your text here')
+    enter_text = translate('enter_text', st.session_state.ko_en)
+    text = left_column.text_area(enter_text, height=400)
 
-    if left_column.button('Analyze'):
+    analyze_button = translate('analyze_button', st.session_state.ko_en)
+    if left_column.button(analyze_button):
         # Send POST request to the FastAPI server
         response = requests.post('http://localhost:8001/sentiment_analysis', json={'text': text})
         sent_prob = response.json()['sent_prob']
