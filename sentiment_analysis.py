@@ -13,14 +13,15 @@ def main():
     sub_title = translate('sub_title', st.session_state.ko_en)
     st.header(sub_title)
 
-    left_column, right_column = st.columns(2)
+    left_column, right_column = st.columns(2) # 2
+    ll_column, lr_column, rl_column, rr_column   = st.columns([1, 1, 1, 1])
 
     # Text input
     enter_text = translate('enter_text', st.session_state.ko_en)
     text = left_column.text_area(enter_text, height=400)
 
     analyze_button = translate('analyze_button', st.session_state.ko_en)
-    if left_column.button(analyze_button):
+    if lr_column.button(analyze_button, use_container_width=True):
         # Send POST request to the FastAPI server
         response = requests.post('http://localhost:8001/sentiment_analysis', json={'text': text})
         sent_prob = response.json()['sent_prob']
