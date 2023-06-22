@@ -34,7 +34,7 @@ def main():
         color_scale = alt.Scale(domain=df['emoji'].unique(), range=colors)
 
         # chart
-        base = alt.Chart(df, height=550).mark_bar(size=30).encode(
+        base = alt.Chart(df, height=400).mark_bar(size=30).encode(
                 alt.X('prob', axis=None),
                 alt.Y('emoji', title=''),
                 alt.Color('emoji', scale=color_scale, legend=None)

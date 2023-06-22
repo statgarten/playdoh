@@ -475,7 +475,7 @@ async def predict_sentiment(request: Request):
     logits = output.logits
     probabilities = torch.nn.functional.softmax(logits, dim=-1)
     prob_to_numpy = probabilities.detach().cpu().numpy()[0] 
-    sent_prob = {labels[i]: float(prob_to_numpy[i]) for i in range(len(labels))}  # define dictionary to make sentiment_analysis.py can get 'sent_prob' as JSON
+    sent_prob = {labels[i]: float(round(prob_to_numpy[i]*100, 2)) for i in range(len(labels))}  # define dictionary to make sentiment_analysis.py can get 'sent_prob' as JSON
     sentiment_predicted = labels[prob_to_numpy.argmax()] # most probable sentiment
 
     return {"sent_prob":sent_prob, "sentiment_predicted":sentiment_predicted}
