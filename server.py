@@ -10,6 +10,8 @@ from torch.autograd import Variable
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 
 from fastapi import FastAPI, UploadFile, File, Form 
+from fastapi.responses import JSONResponse
+
 from starlette.responses import FileResponse
 
 from PIL import Image
@@ -17,6 +19,7 @@ from io import BytesIO
 
 # MobilenetV3를 구성하기 위해 py와 가중치파일을 따로 폴더에 넣기
 import pretrained_model.mobilenet_v3.mobilenetv3 as mobilenetv3
+
 import numpy as np
 import pandas as pd
 
@@ -140,7 +143,6 @@ async def test_model_endpoint(files: list[UploadFile] = File(...)):
 
     # 다른 post에서 생성한 전역변수
     # global model
-
     global encoder
     global device
     # model load
@@ -170,8 +172,8 @@ async def test_model_endpoint(files: list[UploadFile] = File(...)):
     return {'prediction':pred_list}
 
 # model download endpoint
-@app.get("/model_download")
-def download_model():
+@app.get("/img_classification_model_download")
+def download_img_model():
 
     model_path = 'trained_model/image_classification_model.pth'
 
@@ -242,19 +244,23 @@ def numpy_to_torch(train_x, train_y, test_x, test_y):
 
     return train_x_tensor, train_y_tensor, test_x_tensor, test_y_tensor
 
-
 # 모델 설계
+# LSTM_이라는 class가 nn.Module이라는 부모클래스를 상속받고 있는 상태
 class LSTM_(nn.Module):
-    def __init__(self, input_dim, hidden_dim, num_layers, output_dim):
-        super(LSTM_, self).__init__()
+    # input_dim, hidden_dim, num_layers, output_dim, device 를 입력으로 받는 초기화 함수
+    def __init__(self, input_dim, hidden_dim, num_layers, output_dim, device):
+        # 파생클래스와 self를넣어서 현재 클래스가 어떤 클래스인지 명확하게 표시
+        # super().__init__()과는 기능적으로 차이가 없다
+        super(LSTM_, self).__init__() # super().__init__() == super(파생클래스이름, self).__init__()
         
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
         self.input_dim = input_dim
+        self.device = device
 
-        self.lstm =nn.LSTM(input_dim, hidden_dim, num_layers, batch_first = True)
+        self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers, batch_first = True).to(device)
         self.fc = nn.Linear(hidden_dim, output_dim)
-        
+    
     def forward(self, x):
         h0, c0 = self.init_hidden(x)
         out,(hn, cn)=self.lstm(x, (h0,c0))
@@ -262,17 +268,16 @@ class LSTM_(nn.Module):
         return out
     
     def init_hidden(self, x):
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim)
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim)
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim).to(self.device)
+        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim).to(self.device)
         return h0, c0
 
-# 모델 훈련
 # 모델 훈련
 def train_time_model(learning_rate, num_epochs, train_x_tensor, train_y_tensor, device):
     
     global LSTM_
     
-    model = LSTM_(input_dim=1,hidden_dim=128,output_dim=1,num_layers=2).to(device)
+    model = LSTM_(input_dim=1,hidden_dim=128,output_dim=1,num_layers=2, device=device).to(device)
 
     loss_check = []
     
@@ -368,8 +373,8 @@ def additional_pred(model, input_sequense, num_features, scaler, device):
     
     return additional_plus_data
 
-# training and prediction 
-@app.post("/time_train_pred")
+# training 
+@app.post("/time_train")
 async def time_train_endpoint(data_arranges:list[str],
                               pred_col: str = Form(...),
                               date: str = Form(...),
@@ -378,10 +383,9 @@ async def time_train_endpoint(data_arranges:list[str],
                               epoch: int = Form(...),
                               learning_rate: float = Form(...),
                               file : UploadFile = File(...)):
-    
+    global device
     device = 'cuda' if tc.is_available() else 'cpu'
 
-    num_features = 30
     label_data = 'Label_Data'
 
     content = await file.read()
@@ -409,6 +413,7 @@ async def time_train_endpoint(data_arranges:list[str],
     x_scaled_train = x_scaler.fit_transform(x_train)
     x_scaled_test = x_scaler.transform(x_test)
 
+    global y_scaler
     y_scaler = MinMaxScaler()
     y_scaled_train = y_scaler.fit_transform(y_train)
     y_scaled_test = y_scaler.transform(y_test)
@@ -419,6 +424,15 @@ async def time_train_endpoint(data_arranges:list[str],
     # 훈련데이터와 테스트데이터 를 각각 정규화 및 정답데이터 훈련데이터 분리
     train_x, train_y = seq2dataset(x_scaled_train, y_scaled_train, window_size, horizon_factor) # numpy_array
     test_x, test_y = seq2dataset(x_scaled_test, y_scaled_test, window_size, horizon_factor)
+
+    # test_x가 0개면 return?
+    if test_x.shape[0] == 0 or train_x.shape[0] == 0:
+        response_content = {
+            'scaled_test': x_scaled_test.shape[0],
+            'scaled_train': x_scaled_train.shape[0],
+            'data_success': False
+        }
+        return JSONResponse(content = response_content) # -> error 표시와, x_scaled_test의 갯수를 리턴하여 이 갯수보다 줄이라고 표시해주기?
 
     # Check Data pre-processing
     print("Training numpy array shape :", train_x.shape, train_y.shape)
@@ -434,7 +448,28 @@ async def time_train_endpoint(data_arranges:list[str],
     time_series_model, loss_check = train_time_model(learning_rate, epoch, train_x_tensor, train_y_tensor, device)
 
     # 모델 가중치 저장
-    torch.save(time_series_model.state_dict(), 'trained_model/time_series_forecasting.pth')
+    torch.save(time_series_model, 'trained_model/time_series_forecasting.pth')
+    
+    response_content = {
+        # return 하기 위해 numpy array후 list화 진행
+        'test_x_tensor': test_x_tensor.numpy().tolist(),
+        'data_success': True
+    }
+    # print(test_x_tensor.numpy().tolist())
+    return JSONResponse(content = response_content)
+
+# prediction
+@app.post("/time_pred")
+def time_pred_endpoint(test_x_tensor:list[str],
+                       num_features: int = Form(...),
+                       window_size: int = Form(...)):
+    global device
+    global y_scaler
+    # model load
+    time_series_model = torch.load("trained_model/time_series_forecasting.pth", map_location=device)
+    # test_x_tensor 구조를 (540, 1) -> (135, 4, 1)로 바꾸기 위함
+    test_x_tensor = torch.tensor([eval(i) for i in test_x_tensor])
+    test_x_tensor = test_x_tensor.reshape(test_x_tensor.shape[0]//window_size, window_size, 1)
 
     # 모델 테스트
     pred_lst, inverse_pred_lst = test_time_model(time_series_model, test_x_tensor, y_scaler, device)
@@ -446,8 +481,15 @@ async def time_train_endpoint(data_arranges:list[str],
     pred_list = [float(i) for i in pred_lst]
     predict_additional_list = [float(i[0]) for i in predict_additional_data]
 
-    return {'pred_list':pred_list, 'predict_additional_list':predict_additional_list}
+    return {'data_success':True, 'pred_list':pred_list, 'predict_additional_list':predict_additional_list}
 
+# time forecasting model 다운로드
+@app.get("/time_series_model_download")
+def download_time_series_model():
+
+    model_path = 'trained_model/time_series_forecasting.pth'
+
+    return FileResponse(path=model_path, filename=model_path, media_type='application/octet-stream')
 ########### Time Forecasting end #############
 
 ########### Sentiment Analysis #############

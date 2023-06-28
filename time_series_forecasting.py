@@ -8,52 +8,56 @@ import json
 import datetime
 import io
 
-
 # 원본 데이터와 예측 데이터를 가지고 라인그래프로 표현
 def line_chart(data_df, int_col, pred_list, predict_plus_data, date):
     
     # line_chart 그리기
     line = pd.DataFrame({'raw':data_df[int_col],
-                              'pred':np.NaN})
+                         'test':np.NaN,
+                         'pred':np.NaN})
     
     # 그래프의 x축으로 잡기 위한 설정 
     line[date] = data_df[date]
     
     # 예측한 기간에만 예측 데이터 삽입
-    line.loc[line.index >= len(line)-len(pred_list), 'pred'] = pred_list
+    line.loc[line.index >= len(line)-len(pred_list), 'test'] = pred_list
     
     # 추가적으로 예측한 범위에 대해서 날짜를 하루씩 추가하여 데이터 삽입
     for _, count in enumerate(predict_plus_data):
-        pred_df = pd.DataFrame({'Date':[line[date][len(line)-1] + datetime.timedelta(days=1)],
+        pred_df = pd.DataFrame({date:[line[date][len(line)-1] + datetime.timedelta(days=1)],
                                 'raw':[np.NaN],
+                                'test':[np.NaN],
                                 'pred':[count]})
         line = pd.concat([line, pred_df], ignore_index = True)
     
     # # 그래프의 x축으로 잡기 위한 설정
 
-    raw_layer = (alt.Chart(line, height=400)
+    raw_layer = (alt.Chart(line, height=430)
         .encode(
-            x="Date:T",
+            x=date + ":T",
             y=alt.Y("raw:Q"),
         )
     )
 
-    pred_layer = (alt.Chart(line, height=400)
+    test_layer = (alt.Chart(line, height=430)
         .encode(
-            x="Date:T",
-            y=alt.Y("pred:Q"),
+            x=date + ":T",
+            y=alt.Y("test:Q"),
         )
     )
     
-    chart = pred_layer.mark_line(color='red') + raw_layer.mark_line(color='blue')
+    pred_layer = (alt.Chart(line, height=430)
+        .encode(
+            x=date + ":T",
+            y=alt.Y("pred:Q"),
+        )
+    )
+
+    chart = test_layer.mark_line(color='#50bcdf') + raw_layer.mark_line(color='#000080') + pred_layer.mark_line(color='#3e91b5')
     st.altair_chart(
         chart,
         use_container_width=True
     )
-    # line = line.set_index(date)
-    
-    # # 그래프 생성
-    # st.line_chart(line)
 
 # 각 언어에 따른 language json load
 def load_translation(language):
@@ -66,10 +70,57 @@ def translate(key, language):
     translations = load_translation(language)
     return translations[language][key]
 
+# 설명 세션 초기화
+def explanation_session_clear():
+    if 'explanation' in st.session_state:
+        del st.session_state['explanation']
+
+def css_style():
+    st.markdown("""
+        <style>
+               
+            .block-container div:nth-child(5) > ul > li > div.st-am.st-dx.st-dy.st-dz.st-e0 > div > div:nth-child(1) > div > div > div.css-vrmepw.esravye1 > div:nth-child(1) > div > div:nth-child(1) .stButton button{
+                    background: none!important;
+                    border: none;
+                    padding: 0!important;
+                    text-decoration: none;
+                    cursor: pointer;
+                    border: none !important;
+                }
+
+            .block-container div:nth-child(5) > ul > li > div.st-am.st-dx.st-dy.st-dz.st-e0 > div > div:nth-child(1) > div > div > div.css-vrmepw.esravye1 > div:nth-child(1) > div > div:nth-child(2) .stButton button{
+                    background: none!important;
+                    border: none;
+                    padding: 0!important;
+                    text-decoration: none;
+                    cursor: pointer;
+                    border: none !important;
+                }
+
+            button[kind="secondary"]:focus {
+                    outline: none !important;
+                    box-shadow: none !important;
+                    color: black !important;
+                }
+
+            button[kind="secondary"]:hover { 
+                text-decoration: none;
+                color: black !important;
+            }
+
+        </style>
+        
+        """, unsafe_allow_html=True)
+
 def main():
+
+    css_style()
+
+    explanation_session_clear()
 
     global add_pred_list
     global pred_list
+    global test_x_tensor
 
     sub_title = translate('sub_title', st.session_state.ko_en)
     
@@ -97,11 +148,22 @@ def main():
     HP_window_size = translate('HP_window_size', st.session_state.ko_en)
     HP_horizon_factor = translate('HP_horizon_factor', st.session_state.ko_en)
 
+    ex_learning_rate = translate('ex_learning_rate', st.session_state.ko_en)
+    ex_epoch = translate('ex_epoch', st.session_state.ko_en)
+    ex_window_size = translate('ex_window_size', st.session_state.ko_en)
+    ex_horizon_factor = translate('ex_horizon_factor', st.session_state.ko_en)
+
     explanation_title = translate('explanation_title', st.session_state.ko_en)
     explanation_text = translate('explanation_text', st.session_state.ko_en)
 
     training_validation_model_button = translate('training_validation_model_button', st.session_state.ko_en)
+    training_model_spinner = translate('training_model_spinner', st.session_state.ko_en)
+
     prediction_model_button = translate('prediction_model_button', st.session_state.ko_en)
+
+    time_series_forecasting = translate('time_series_forecasting', st.session_state.ko_en)
+
+    pred_after_down = translate('pred_after_down', st.session_state.ko_en)
 
     pred_graph = translate('pred_graph', st.session_state.ko_en)
 
@@ -130,16 +192,16 @@ def main():
                     train_df = pd.read_excel(uploaded_file)
                 date_column, pred_column = st.columns(2)
                 with date_column:
-                    date = st.selectbox(decide_date_column,(train_df.select_dtypes(include=['object','datetime64','float64', 'int64']).columns.tolist()))
-                    # date컬럼이 datetime으로 바뀌지 않으면
                     try :
+                        date = st.selectbox(decide_date_column,(train_df.select_dtypes(include=['object','datetime64','float64', 'int64']).columns.tolist()))
+                        # date컬럼이 datetime으로 바뀌지 않으면
                         train_df[date] = pd.to_datetime(train_df[date])
                     except:
                         st.caption(invalid_format)
                 with pred_column:
                     int_col = st.selectbox(decide_pred_column,(train_df.select_dtypes(include=['float64', 'int64']).columns.tolist()))
 
-                ratio = int(len(train_df) * 0.8)
+                ratio = int(len(train_df) * 0.7)
                 
                 with choice_arrange:
                     try:
@@ -147,96 +209,147 @@ def main():
                         train_start = train_s.date_input(train_data_arrange, pd.to_datetime(train_df[date][0]))
                         train_end = train_e.date_input('',pd.to_datetime(train_df[date][ratio]), label_visibility='hidden')
 
-                        _, val_s, _, val_e = st.columns([1, 3, 0.5, 3])
-                        val_start = val_s.date_input(val_data_arrange, train_end + datetime.timedelta(days=1))
-                        val_end = val_e.date_input('', pd.to_datetime(train_df[date][len(train_df[date])-1]), label_visibility='hidden')
-
-                        _, pred_s, _, pred_e = st.columns([1, 3, 0.5, 3])
-                        pred_start = pred_s.date_input(pred_data_arrange, pd.to_datetime(train_df[date][ratio+1]))
-                        pred_end = pred_e.date_input('', pd.to_datetime(train_df[date][len(train_df[date])-1]) + datetime.timedelta(days=30), label_visibility='hidden')
-                        
                         train_start_index = train_df[train_df[date] == pd.to_datetime(train_start)].index[0]
                         train_end_index = train_df[train_df[date] == pd.to_datetime(train_end)].index[0] + 1
+                    
+                        _, test_text, _ = st.columns([1, 5.6, 1])  
+                        with test_text:
+                            st.caption(val_data_arrange)
+
+                        _, val_s, _, val_e = st.columns([1, 3, 0.5, 3])
+                        val_start = val_s.date_input('val_start', pd.to_datetime(train_df[date][train_end_index]), label_visibility='collapsed', disabled=True)
+                        val_end = val_e.date_input('val_end', pd.to_datetime(train_df[date][len(train_df[date])-1]), label_visibility='collapsed', disabled=True)
+
                         test_start_index = train_df[train_df[date] == pd.to_datetime(val_start)].index[0]
                         test_end_index = train_df[train_df[date] == pd.to_datetime(val_end)].index[0] + 1
-                        pred_start_index = train_df[train_df[date] == pd.to_datetime(pred_start)].index[0]
+                        # test date의 10%를 예측
+                        num_features = (test_end_index - test_start_index) // 10
                         
+                        pred_e_day = (val_end-val_start) // datetime.timedelta(days=10)
+
+                        _, pred_text, _ = st.columns([1, 5.6, 1])  
+
+                        with pred_text:
+                            st.caption(pred_data_arrange)
+
+                        _, pred_s, _, pred_e = st.columns([1, 3, 0.5, 3])
+                    
+                        pred_start = pred_s.date_input('pred_start', pd.to_datetime(train_df[date][len(train_df[date])-1]), label_visibility='collapsed', disabled=True)  
+                        pred_end = pred_e.date_input('pred_end', pd.to_datetime(train_df[date][len(train_df[date])-1]) + datetime.timedelta(days=pred_e_day), label_visibility='collapsed', disabled=True)
+                        
+                        pred_start_index = train_df[train_df[date] == pd.to_datetime(pred_start)].index[0]
                         data_arrange = [train_start_index, train_end_index, test_start_index, test_end_index, pred_start_index, pred_end]
+
                     except:
                         _, date_column_not_exist = st.columns([0.5, 3.5])
                         with date_column_not_exist:
                             st.warning(date_column_not_exist_select_column)
+                    
             else:
                 st.info(upload_info)
                 
     with st.expander(expander_train_prediction, expanded=False):
 
-        _, choice_hp, _, result, _ = st.columns([0.3, 3, 0.3, 7, 0.3])
+        _, choice_hp, _, pred_result, _ = st.columns([0.3, 3, 0.3, 7, 0.3])
 
         HP_dict = {
-                'Window size' : '~',
-                'Horizon factor': '~',
-                'Epoch': 'Epoch 란 \n"에포크"라고 읽고 전체 데이터셋을 학습한 횟수를 의미합니다. \n\nEpoch 예시 \n사람이 문제집으로 공부하는 상황을 다시 예로 들어보겠습니다. epoch는 문제집에 있는 모든 문제를 처음부터 끝까지 풀고, 채점까지 마친 횟수를 의미합니다. 문제집 한 권 전체를 1번 푼 사람도 있고, 3번, 5번, 심지어 10번 푼 사람도 있습니다. epoch는 이처럼 문제집 한 권을 몇 회 풀었는지를 의미합니다. 즉 epoch가 10회라면, 학습 데이터 셋 A를 10회 모델에 학습시켰다는 것 입니다. \n\nEpoch 범위 \nEpoch를 높일수록, 다양한 무작위 가중치로 학습을 해보므로, 적합한 파라미터를 찾을 확률이 올라갑니다.(즉, 손실 값이 내려가게 됩니다.) 그러나, 지나치게 epoch를 높이게 되면, 그 학습 데이터셋에 과적합(Overfitting)되어 다른 데이터에 대해선 제대로 된 예측을 하지 못할 가능성이 올라갑니다.',
+                'Window size' : ex_window_size,
+                'Horizon factor': ex_horizon_factor,
+                'Epoch': ex_epoch,
+                'Learning_rate' : ex_learning_rate
             }
+        
         with choice_hp:
             with st.container():
                 win_size, _, hori_fac = st.columns([1, 0.1, 1])
                 with win_size:
-                    if st.button(HP_window_size, type='primary'):
+                    if st.button(HP_window_size):
                         st.session_state.explanation = HP_dict['Window size']
                     window_size = st.text_input('', value = 30, label_visibility='collapsed') 
                 with hori_fac:
-                    if st.button(HP_horizon_factor, type='primary'):
+                    if st.button(HP_horizon_factor):
                         st.session_state.explanation = HP_dict['Horizon factor']
                     horizon_factor = st.text_input('', value = 1, label_visibility='collapsed')
                 
             with st.container():
                 lear_rate, _, epo = st.columns([1,0.1,1])
                 with lear_rate:
-                    if st.button(HP_learning_rate, type='primary'):
-                        st.session_state.explanation = HP_dict['learning_rate']
+                    if st.button(HP_learning_rate):
+                        st.session_state.explanation = HP_dict['Learning_rate']
                     learning_rate = st.text_input('', value = 0.0001, label_visibility='collapsed')
                 with epo:
-                    if st.button(HP_epoch, type='primary'):
+                    if st.button(HP_epoch):
                         st.session_state.explanation = HP_dict['Epoch']
                     epoch = st.text_input('', value = 200, label_visibility='collapsed')
 
-            st.text_area(explanation_title, explanation_text, height = 250, disabled = True)
+            if 'explanation' not in st.session_state:
+                st.session_state['explanation'] = explanation_text
+            st.text_area(explanation_title, st.session_state.explanation, height = 250, disabled = True)
 
-        with result:
+            train_test, prediction = st.columns(2)
+
+            with train_test:
+                if uploaded_file:
+                    if st.button(training_validation_model_button, use_container_width=True) and uploaded_file:
+                        with st.spinner(training_model_spinner):
+                            response = requests.post("http://localhost:8001/time_train", files=csv_files, data={'data_arranges':list(data_arrange),
+                                                                                                                'window_size':int(window_size),
+                                                                                                                'horizon_factor':int(horizon_factor),
+                                                                                                                'epoch':int(epoch),
+                                                                                                                'learning_rate':float(learning_rate),
+                                                                                                                'pred_col': int_col,
+                                                                                                                'date': date})
+                        if response.ok:
+                            res = response.json()
+                            if res['data_success']:
+                                test_x_tensor = res['test_x_tensor']
+                            else:
+                                # window_size > scaled_test 인 경우 진행 불가
+                                st.write('현재 윈도우 사이즈 ' + str(window_size) + '을(를)' + str(res['scaled_test']) + ' 또는 '+ str(res['scaled_train'])+'의 갯수보다 줄여주세요')
+                        else:
+                            st.write(response)
+                    with prediction:
+                        if uploaded_file and st.button(prediction_model_button, use_container_width=True):
+                            try:
+                                result = requests.post("http://localhost:8001/time_pred", data={'test_x_tensor':list(test_x_tensor),
+                                                                                                'num_features':num_features,
+                                                                                                'window_size':int(window_size)})
+                                if result.ok:
+                                    resu = result.json()
+                                    pred_list = resu['pred_list']
+                                    add_pred_list = resu['predict_additional_list']
+                                else:
+                                    st.write(result)
+                            except:
+                                st.write('학습을 먼저 해주세요')
+                else:
+                    st.caption(upload_train_csv)
+
+        with pred_result:
             if 'result' not in st.session_state:
                 st.session_state['result'] = False
             
-            if st.session_state['result'] and uploaded_file:
-                st.session_state['result'] = False
-                line_chart(train_df, int_col, pred_list, add_pred_list, date)
-                st.write(st.session_state)
-            else:
-                st.text_area('', pred_graph, height = 502, disabled = True, label_visibility='collapsed')
+            try:
+                try:
+                    st.write(time_series_forecasting)
+                    line_chart(train_df, int_col, pred_list, add_pred_list, date)
+                    st.session_state['result'] = False
+                except:
+                    st.text_area('please model train', pred_graph, height = 440, disabled = True, label_visibility='collapsed')
+            except:
+                st.text_area('', pred_graph, height = 440, disabled = True, label_visibility='collapsed')
                                     
-            training_val, pred, download = st.columns(3)
-            with training_val:
-                if st.button(training_validation_model_button, use_container_width=True):
-                    response = requests.post("http://localhost:8001/time_train_pred", files=csv_files, data={'data_arranges':list(data_arrange),
-                                                                                                        'window_size':int(window_size),
-                                                                                                        'horizon_factor':int(horizon_factor),
-                                                                                                        'epoch':int(epoch),
-                                                                                                        'learning_rate':float(learning_rate),
-                                                                                                        'pred_col': int_col,
-                                                                                                        'date': date})
-                    if response.ok:
-                        res = response.json()
-                        pred_list = res['pred_list']
-                        add_pred_list = res['predict_additional_list']
-                    else:
-                        st.write(response)
-
-            with pred:
-                if st.button(prediction_model_button, use_container_width=True):
-                    st.session_state['result'] = True
-
+            _, _, download = st.columns([4, 4, 2.1])
             with download:
-                st.button(model_download, use_container_width=True)
+                try:
+                    if uploaded_file and result.ok:
+                        time_series_model = requests.get('http://localhost:8001/time_series_model_download')       
+                        st.download_button(label = model_download,
+                                        data = time_series_model.content,
+                                        file_name = 'time_series_forecasting_model.pth',
+                                        use_container_width=True)
+                except:
+                    st.caption(pred_after_down)
 
 # For running this file individually
 # if __name__ == "__main__":
