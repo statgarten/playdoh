@@ -16,3 +16,5 @@ torchaudio
 librosa
 emoji
 streamlit-modal
+pydub
+ffmpeg
