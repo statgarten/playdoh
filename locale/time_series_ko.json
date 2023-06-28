@@ -5,37 +5,47 @@
 
         "expander_upload_arrange":"파일 업로드 및 데이터 범위 지정",
 
-        "decide_date_column":"날짜 컬럼을 지정해주세요",
+        "decide_date_column":"날짜 컬럼을 지정해주세요.",
         "decide_pred_column":"예측할 컬럼을 지정해주세요.",
 
         "invalid_format":"잘못된 형식입니다.",
 
         "train_data_arrange":"훈련 데이터 범위를 지정해주세요",
-        "val_data_arrange":"검증 데이터 범위를 지정해주세요",
-        "pred_data_arrange":"예측 데이터 범위를 지정해주세요",
+        "val_data_arrange":"테스트 데이터 범위는 학습 데이터의 마지막 범위부터 끝까지 지정됩니다.",
+        "pred_data_arrange":"추가적인 예측 데이터는 테스트 데이터의 범위의 10%를 제공합니다.",
 
-        "date_column_not_exist_select_column":"해당하는 날짜의 컬럼이 존재하지 않거나 컬럼을 정확히 설정해주세요",
+        "date_column_not_exist_select_column":"해당하는 날짜의 범위가 존재하지 않거나 컬럼을 정확히 설정해주세요",
 
-        "upload_train_csv":"파일을 업로드 해주세요",
+        "upload_train_csv":"csv 파일을 업로드 해주세요",
 
         "upload_info":"파일 업로드시 컬럼 지정과 각 데이터 범위를 지정할 수 있습니다",
 
         "expander_train_prediction":"모델 학습 및 예측",
 
-        "HP_learning_rate":"**_학습률 :question:_**",
-        "HP_epoch":"**_에포크 :question:_**",
-        "HP_window_size":"**_윈도우 크기 :question:_**",
-        "HP_horizon_factor":"**_요인 :question:_**",
+        "HP_learning_rate":"학습률 :question:",
+        "HP_epoch":"에포크 :question:",
+        "HP_window_size":"윈도우 크기 :question:",
+        "HP_horizon_factor":"요인 :question:",
 
-        "explanation_title":"**_하이퍼파라미터 설명_**",
+        "ex_learning_rate":"Learning rate 란 \n한국에서 학습률이라고 불리는 Mahcine learning에서 training 되는 양 또는 단계를 의미합니다. \n\nLearning rate 기준 값 \nLearning rate(학습률)의 값을 어떻게 설정하느냐에 따라서 ML 결과가 달라집니다. 최적의 학습률을 설정해야지만 최종적으로 원하는 결과를 산출해낼 수 있습니다. Learning rate의 값이 적합하지 않을 경우, Overflow가 발생할 수도 있습니다. 한마디로 학습률이 너무 크면 Training 과정에서 발생하는 오류를 줄이지 못한다는 것입니다. 반면에 학습률이 너무 낮다고 해서 좋지만은 않습니다. 학습률이 너무 낮을 경우에는 ML 과정이 오래 걸리고 검증해내는 오류 값이 너무 많아져 Machine learning이 멈출 수가 있습니다. 한마디로 Learning rate가 높으면 산출되는 결과 속도가 빨라지지만 오류 값을 제대로 산출해내지 못하거나 오버플로우가 발생할 수 있고, 반대로 Learning rate가 너무 낮으면 산출되는 결과 속도가 느려지고 오류 값이 너무 많아져 실행 과정 자체가 멈출 수 있습니다. 따라서 적합한 Learning rate 값을 찾는 것이 중요합니다. \n\nLearning rate 초기값 \n일반적으로 0.1, 0.01, 0.001 등의 값을 시도해 볼 수 있습니다.",
+        "ex_epoch":"Epoch 란 \n'에포크'라고 읽고 전체 데이터셋을 학습한 횟수를 의미합니다. \n\nEpoch 예시 \n사람이 문제집으로 공부하는 상황을 다시 예로 들어보겠습니다. epoch는 문제집에 있는 모든 문제를 처음부터 끝까지 풀고, 채점까지 마친 횟수를 의미합니다. 문제집 한 권 전체를 1번 푼 사람도 있고, 3번, 5번, 심지어 10번 푼 사람도 있습니다. epoch는 이처럼 문제집 한 권을 몇 회 풀었는지를 의미합니다. 즉 epoch가 10회라면, 학습 데이터 셋 A를 10회 모델에 학습시켰다는 것 입니다. \n\nEpoch 범위 \nEpoch를 높일수록, 다양한 무작위 가중치로 학습을 해보므로, 적합한 파라미터를 찾을 확률이 올라갑니다.(즉, 손실 값이 내려가게 됩니다.) 그러나, 지나치게 epoch를 높이게 되면, 그 학습 데이터셋에 과적합(Overfitting)되어 다른 데이터에 대해선 제대로 된 예측을 하지 못할 가능성이 올라갑니다.",
+        "ex_window_size":"window size 란 \n시계열 예측에서 window size는 입력 데이터를 얼마나 많이 사용할지 결정하는 파라미터입니다. 윈도우 크기는 예측 모델의 성능에 직접적인 영향을 미칠 수 있으며, 잘 선택되어야 합니다.\n\nwindow size 예시 \n예를 들어, 매일의 주식 가격을 예측한다고 가정해봅시다. 윈도우 크기를 30으로 설정한다면, 마지막 30일의 주식 가격 데이터를 모델에 입력으로 사용하여 다음 날의 주식 가격을 예측할 수 있습니다. 이렇게 윈도우 크기를 30으로 설정하면 모델은 최근 30일간의 트렌드, 계절성, 변동성 등과 같은 패턴을 학습하여 예측을 수행합니다.\n\nwindow size 범위 \n윈도우 크기는 데이터의 특성과 예측하려는 시간 범위에 따라 조정되어야 합니다. 너무 작은 윈도우 크기를 선택하면 모델은 충분한 정보를 포착하지 못할 수 있고, 반대로 너무 큰 윈도우 크기를 선택하면 모델이 과거의 장기적인 패턴에만 집중하여 일시적인 변동성을 놓칠 수 있습니다. 따라서, 문제에 맞는 윈도우 크기를 선택하는 것이 중요합니다.",
+        "ex_horizon_factor":"horizon factor란 \n예측하려는 시간 범위를 나타내는 파라미터입니다. 예측 모델은 과거 데이터를 기반으로 미래 값을 예측하는데 사용되며, horizon factor는 몇 단계 이후의 값을 예측할지를 결정합니다. \n\nhorizon factor 예시 \n예를 들어, 매일의 주식 가격을 예측한다고 가정해봅시다. horizon factor를 5로 설정한다면, 모델은 현재 시점으로부터 5일 후의 주식 가격을 예측하려고 합니다. 즉, 모델은 주어진 입력 데이터를 기반으로 1일, 2일, 3일, 4일, 5일 이후의 주식 가격을 순차적으로 예측하게 됩니다. \n또 다른 예로, 월별 매출을 예측한다고 가정해봅시다. horizon factor를 3으로 설정한다면, 모델은 현재 시점으로부터 3개월 후의 매출을 예측하려고 합니다. 따라서, 모델은 주어진 입력 데이터를 기반으로 다음 월, 다다음 월, 그리고 그 다다음 월의 매출을 순차적으로 예측하게 됩니다. \n\nhorizon factor 조정 \nhorizon factor는 예측 모델의 성능에 영향을 미치는 중요한 요소입니다. 더 먼 미래를 예측하려면 예측이 더 어려워지고, 예측 오차가 누적될 가능성이 있습니다. 따라서, horizon factor는 예측하려는 시간 범위와 예측 정확도 간의 균형을 맞추는 데 사용되어야 합니다.",
+
+        "explanation_title":"하이퍼파라미터 설명",
         "explanation_text":"각 하이퍼파라미터의 이름 또는 ? 를 클릭하시면 설명을 보실 수 있습니다.",
         
         "training_validation_model_button":"모델 학습 및 검증",
+        "training_model_spinner":"모델 학습중입니다. 다른 버튼을 누르지 마세요.",
         "prediction_model_button":"예측",
+
+        "time_series_forecasting":"시계열 예측 결과",
 
         "pred_graph":"학습, 검증 및 예측이 진행 되면 결과 그래프를 보실 수 있습니다.",
 
-        "model_download":"모델 다운로드"
+        "pred_after_down":"예측 시 모델 다운로드 가능!",
+
+        "model_download":"모델 다운로드 "
 
         }
 }
