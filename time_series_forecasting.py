@@ -54,6 +54,7 @@ def line_chart(data_df, int_col, pred_list, predict_plus_data, date):
     )
 
     chart = test_layer.mark_line(color='#50bcdf') + raw_layer.mark_line(color='#000080') + pred_layer.mark_line(color='#3e91b5')
+    chart = chart.encoding.y.title = "Price [USD]"
     st.altair_chart(
         chart,
         use_container_width=True
@@ -75,11 +76,20 @@ def explanation_session_clear():
     if 'explanation' in st.session_state:
         del st.session_state['explanation']
 
+# .block-container div:nth-child(5) > ul > li div.streamlit-expanderContent > div  > div > div div:nth-child(2) > div:nth-child(1) > div .stButton button{
+#                     background: none!important;
+#                     border: none;
+#                     padding: 0!important;
+#                     text-decoration: none;
+#                     cursor: pointer;
+#                     border: none !important;
+#                 }
+
 def css_style():
     st.markdown("""
         <style>
                
-            .block-container div:nth-child(5) > ul > li > div.st-am.st-dx.st-dy.st-dz.st-e0 > div > div:nth-child(1) > div > div > div.css-vrmepw.esravye1 > div:nth-child(1) > div > div:nth-child(1) .stButton button{
+            .block-container div:nth-child(5) > ul > li > div:nth-child(2) > div > div:nth-child(1) > div > div > div > div:nth-child(1) > div > div:nth-child(1) > div > div > div:nth-child(1) > div:nth-child(1) > div > div:nth-child(1) > div > button{
                     background: none!important;
                     border: none;
                     padding: 0!important;
@@ -88,7 +98,25 @@ def css_style():
                     border: none !important;
                 }
 
-            .block-container div:nth-child(5) > ul > li > div.st-am.st-dx.st-dy.st-dz.st-e0 > div > div:nth-child(1) > div > div > div.css-vrmepw.esravye1 > div:nth-child(1) > div > div:nth-child(2) .stButton button{
+            .block-container div:nth-child(5) > ul > li > div:nth-child(2) > div > div:nth-child(1) > div > div > div > div:nth-child(1) > div > div:nth-child(2) > div > div > div:nth-child(1) > div:nth-child(1) > div > div:nth-child(1) > div > button{
+                    background: none!important;
+                    border: none;
+                    padding: 0!important;
+                    text-decoration: none;
+                    cursor: pointer;
+                    border: none !important;
+                }
+
+            .block-container div:nth-child(5) > ul > li > div:nth-child(2) > div > div:nth-child(1) > div > div > div > div:nth-child(1) > div > div:nth-child(1) > div > div > div:nth-child(3) > div:nth-child(1) > div > div:nth-child(1) > div > button{
+                    background: none!important;
+                    border: none;
+                    padding: 0!important;
+                    text-decoration: none;
+                    cursor: pointer;
+                    border: none !important;
+                }
+
+            .block-container div:nth-child(5) > ul > li > div:nth-child(2) > div > div:nth-child(1) > div > div > div > div:nth-child(1) > div > div:nth-child(2) > div > div > div:nth-child(3) > div:nth-child(1) > div > div:nth-child(1) > div > button{
                     background: none!important;
                     border: none;
                     padding: 0!important;
