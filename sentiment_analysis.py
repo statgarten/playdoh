@@ -24,7 +24,7 @@ def main():
 
     # Initialize empty dataframe and create empty chart first
     df = pd.DataFrame(columns=['sent', 'prob', 'emoji'])
-    base = alt.Chart(df, height=550).mark_bar(size=30).encode(
+    base = alt.Chart(df, height=400).mark_bar(size=30).encode(
                 alt.X('prob', axis=None),
                 alt.Y('emoji', title=''),
                 alt.Color('emoji', scale=alt.Scale(domain=[], range=[]), legend=None)
