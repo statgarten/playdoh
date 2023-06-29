@@ -9,7 +9,7 @@ def main():
     if uploaded_file is not None:
         bytes_data = io.BytesIO(uploaded_file.getvalue())
         audio_file = {"file": (uploaded_file.name, bytes_data, "audio/wav")}
-        response = requests.post("http://localhost:8001/stt", files=audio_file)
+        response = requests.post("http://localhost:8001/speech_to_text", files=audio_file)
         transcription = response.json()["transcription"]
 
         st.write("Transcription:")
