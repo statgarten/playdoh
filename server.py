@@ -540,8 +540,8 @@ processor = Wav2Vec2Processor.from_pretrained(model_name)
 model = Wav2Vec2ForCTC.from_pretrained(model_name)
 
 @app.post("/speech_to_text")
-def speech2text(file: UploadFile = File(...)):
-    audio_file = file.read()
+async def speech2text(file: UploadFile = File(...)):
+    audio_file = await file.read()
 
     # load audio file and resample to 16kHz
     audio, rate = librosa.load(audio_file, sr=None)
