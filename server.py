@@ -1,3 +1,4 @@
+import torch
 import torch.nn.init
 import torch.nn as nn
 import torch.cuda as tc
@@ -9,7 +10,7 @@ from torch.autograd import Variable
 
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 
-from fastapi import FastAPI, UploadFile, File, Form 
+from fastapi import FastAPI, UploadFile, File, Form, Request
 from fastapi.responses import JSONResponse
 
 from starlette.responses import FileResponse
@@ -22,6 +23,16 @@ import pretrained_model.mobilenet_v3.mobilenetv3 as mobilenetv3
 
 import numpy as np
 import pandas as pd
+
+#sa
+from fastapi import FastAPI, Request
+from transformers import AutoModelForSequenceClassification
+from kobert_tokenizer import KoBERTTokenizer
+#stt
+from pydub import AudioSegment
+from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC
+import soundfile as sf
+import librosa
 
 app = FastAPI()
 
@@ -494,21 +505,14 @@ def download_time_series_model():
 
 ########### Sentiment Analysis #############
 
-from fastapi import FastAPI, Request
-from transformers import AutoModelForSequenceClassification
-from kobert_tokenizer import KoBERTTokenizer
-import torch
-import pandas as pd
-
 model_name = "./pretrained_model/kobert_ft"
 labels = {0: '기쁨', 1: '우울', 2: '분노', 3: '두려움', 4: '사랑', 5: '놀람', 6: '중립'}
 
 # Load model & tokenizer 
 sentiment_analysis_model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels = 7)
-tokenizer = KoBERTTokenizer.from_pretrained(model_name, truncation_side="left") # 한국말은 끝까지 들어야해요
-
+tokenizer = KoBERTTokenizer.from_pretrained(model_name, truncation_side="left") 
 @app.post("/sentiment_analysis")
-async def predict_sentiment(request: Request):
+async def predict_sentiment_endpoint(request: Request):
     data = await request.json()
     text = data.get('text', '')
 
@@ -524,36 +528,32 @@ async def predict_sentiment(request: Request):
 
 ########### Sentiment Analysis End #############
 
-########### Speech2Text #############
-from fastapi import UploadFile, File
-from pydub import AudioSegment
-from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC
-import soundfile as sf
-import torch
-import librosa
-from starlette.responses import JSONResponse
+# ########### Speech2Text #############
 
-model_name = "./pretrained_model/wav2vec2"
+# model_name = "./pretrained_model/wav2vec2"
 
-# Load model & tokenizer 
-processor = Wav2Vec2Processor.from_pretrained(model_name)
-model = Wav2Vec2ForCTC.from_pretrained(model_name)
+# # Load model & tokenizer 
+# processor = Wav2Vec2Processor.from_pretrained(model_name)
+# model = Wav2Vec2ForCTC.from_pretrained(model_name)
 
-@app.post("/speech_to_text")
-async def speech2text(file: UploadFile = File(...)):
-    audio_file = await file.read()
+# @app.post("/speech_to_text")
+# async def speech2text_endpoint(file: UploadFile = File(...)):
+#     audio_file = await file.read()
 
-    # load audio file and resample to 16kHz
-    audio, rate = librosa.load(audio_file, sr=None)
-    if len(audio.shape) > 1: 
-        audio = audio[:,0] + audio[:,1]
-    if rate != 16000:
-        audio = librosa.resample(audio, rate, 16000)
+#     # load audio file and resample to 16kHz
+#     audio, rate = librosa.load(audio_file, sr=None)
 
-    input_values = processor(audio, return_tensors="pt", sampling_rate=16000).input_values # tokenize
-    logits = model(input_values).logits
-    predicted_ids = torch.argmax(logits, dim=-1)
-    transcription = processor.batch_decode(predicted_ids)
+#     if len(audio.shape) > 1: 
+#         audio = audio[:,0] + audio[:,1]
+#     if rate != 16000:
+#         audio = librosa.resample(audio, rate, 16000)
+
+#     input_values = processor(audio, return_tensors="pt", sampling_rate=16000).input_values # tokenize
+#     logits = model(input_values).logits
+#     predicted_ids = torch.argmax(logits, dim=-1)
+#     transcription = processor.batch_decode(predicted_ids)
     
-    return JSONResponse(content={"transcription": transcription})
+#     # return JSONResponse(content={"transcription": transcription})
+#     return {"transcription": transcription}
+
 ########### Speech2Text End #############

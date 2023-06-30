@@ -5,7 +5,7 @@ import io
 def main():
     st.header("Speech-to-Text with wav2vec")
     
-    uploaded_file = st.file_uploader("Choose a WAV file", type="wav")
+    uploaded_file = st.file_uploader("Choose an audio file", type=["wav", "mp3", "wma"])
     if uploaded_file is not None:
         bytes_data = io.BytesIO(uploaded_file.getvalue())
         audio_file = {"file": (uploaded_file.name, bytes_data, "audio/wav")}
