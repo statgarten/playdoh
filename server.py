@@ -327,7 +327,6 @@ def train_time_model(learning_rate, num_epochs, train_x_tensor, train_y_tensor, 
     return model, loss_check
 
 # 모델 테스트
-# 모델 테스트
 def test_time_model(model, test_x_tensor, scaler, device):
 
     model.eval() # model eval모드
@@ -439,8 +438,7 @@ async def time_train_endpoint(data_arranges:list[str],
     # test_x가 0개면 return?
     if test_x.shape[0] == 0 or train_x.shape[0] == 0:
         response_content = {
-            'scaled_test': x_scaled_test.shape[0],
-            'scaled_train': x_scaled_train.shape[0],
+            'scaled_size': min(x_scaled_test.shape[0], x_scaled_train.shape[0]),
             'data_success': False
         }
         return JSONResponse(content = response_content) # -> error 표시와, x_scaled_test의 갯수를 리턴하여 이 갯수보다 줄이라고 표시해주기?
@@ -528,7 +526,15 @@ async def predict_sentiment_endpoint(request: Request):
 
 ########### Sentiment Analysis End #############
 
-# ########### Speech2Text #############
+########### Speech2Text #############
+# from fastapi import UploadFile, File
+# from pydub import AudioSegment
+# from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC
+# import soundfile as sf
+# import torch
+# import librosa
+# import os
+# from starlette.responses import JSONResponse
 
 # model_name = "./pretrained_model/wav2vec2"
 
@@ -536,13 +542,12 @@ async def predict_sentiment_endpoint(request: Request):
 # processor = Wav2Vec2Processor.from_pretrained(model_name)
 # model = Wav2Vec2ForCTC.from_pretrained(model_name)
 
-# @app.post("/speech_to_text")
-# async def speech2text_endpoint(file: UploadFile = File(...)):
+# @app.post("/stt")
+# async def speech2text(file: UploadFile = File(...)):
 #     audio_file = await file.read()
 
 #     # load audio file and resample to 16kHz
-#     audio, rate = librosa.load(audio_file, sr=None)
-
+#     audio, rate = librosa.load(io.BytesIO(audio_file), sr=None)
 #     if len(audio.shape) > 1: 
 #         audio = audio[:,0] + audio[:,1]
 #     if rate != 16000:
@@ -555,5 +560,4 @@ async def predict_sentiment_endpoint(request: Request):
     
 #     # return JSONResponse(content={"transcription": transcription})
 #     return {"transcription": transcription}
-
 ########### Speech2Text End #############

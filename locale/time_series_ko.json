@@ -16,7 +16,7 @@
 
         "date_column_not_exist_select_column":"해당하는 날짜의 범위가 존재하지 않거나 컬럼을 정확히 설정해주세요",
 
-        "upload_train_csv":"csv 파일을 업로드 해주세요",
+        "upload_train_csv":"파일을 업로드 해주세요",
 
         "upload_info":"파일 업로드시 컬럼 지정과 각 데이터 범위를 지정할 수 있습니다",
 
@@ -35,13 +35,16 @@
         "explanation_title":"하이퍼파라미터 설명",
         "explanation_text":"각 하이퍼파라미터의 이름 또는 ? 를 클릭하시면 설명을 보실 수 있습니다.",
         
-        "training_validation_model_button":"모델 학습 및 검증",
+        "training_validation_model_button":"모델 학습 및 테스트",
         "training_model_spinner":"모델 학습중입니다. 다른 버튼을 누르지 마세요.",
+        "training_model_complete":"학습 성공",
         "prediction_model_button":"예측",
+
+        "after_train":"학습을 먼저 해주세요",
 
         "time_series_forecasting":"시계열 예측 결과",
 
-        "pred_graph":"학습, 검증 및 예측이 진행 되면 결과 그래프를 보실 수 있습니다.",
+        "pred_graph":"학습, 테스트 및 예측이 진행 되면 결과 그래프를 보실 수 있습니다.",
 
         "pred_after_down":"예측 시 모델 다운로드 가능!",
 
