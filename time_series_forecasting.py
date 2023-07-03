@@ -29,32 +29,29 @@ def line_chart(data_df, int_col, pred_list, predict_plus_data, date):
                                 'test':[np.NaN],
                                 'pred':[count]})
         line = pd.concat([line, pred_df], ignore_index = True)
-    
-    # # 그래프의 x축으로 잡기 위한 설정
 
-    raw_layer = (alt.Chart(line, height=430)
+    raw_layer = (alt.Chart(line, height=450)
         .encode(
             x=date + ":T",
-            y=alt.Y("raw:Q"),
+            y=alt.Y("raw:Q" , title='value')
         )
     )
 
-    test_layer = (alt.Chart(line, height=430)
+    test_layer = (alt.Chart(line, height=450)
         .encode(
             x=date + ":T",
-            y=alt.Y("test:Q"),
+            y=alt.Y("test:Q", title='value'),
         )
     )
     
-    pred_layer = (alt.Chart(line, height=430)
+    pred_layer = (alt.Chart(line, height=450)
         .encode(
             x=date + ":T",
-            y=alt.Y("pred:Q"),
+            y=alt.Y("pred:Q", title='value'),
         )
     )
 
-    chart = test_layer.mark_line(color='#50bcdf') + raw_layer.mark_line(color='#000080') + pred_layer.mark_line(color='#3e91b5')
-    chart = chart.encoding.y.title = "Price [USD]"
+    chart = test_layer.mark_line(color='red') + raw_layer.mark_line(color='blue') + pred_layer.mark_line(color='green')
     st.altair_chart(
         chart,
         use_container_width=True
@@ -85,6 +82,7 @@ def explanation_session_clear():
 #                     border: none !important;
 #                 }
 
+# CSS 수정
 def css_style():
     st.markdown("""
         <style>
@@ -126,14 +124,14 @@ def css_style():
                 }
 
             button[kind="secondary"]:focus {
-                    outline: none !important;
-                    box-shadow: none !important;
-                    color: black !important;
+                outline: none !important;
+                box-shadow: none !important;
+                color: !important;
                 }
 
             button[kind="secondary"]:hover { 
                 text-decoration: none;
-                color: black !important;
+                color: !important;
             }
 
         </style>
@@ -142,13 +140,18 @@ def css_style():
 
 def main():
 
+    # CSS 수정
     css_style()
 
+    # 설명 세션 초기화
     explanation_session_clear()
 
     global add_pred_list
     global pred_list
     global test_x_tensor
+    global prev_window_size 
+    global result_req
+    global response
 
     sub_title = translate('sub_title', st.session_state.ko_en)
     
@@ -186,8 +189,11 @@ def main():
 
     training_validation_model_button = translate('training_validation_model_button', st.session_state.ko_en)
     training_model_spinner = translate('training_model_spinner', st.session_state.ko_en)
+    training_model_complete = translate('training_model_complete', st.session_state.ko_en)
 
     prediction_model_button = translate('prediction_model_button', st.session_state.ko_en)
+
+    after_train = translate('after_train', st.session_state.ko_en)
 
     time_series_forecasting = translate('time_series_forecasting', st.session_state.ko_en)
 
@@ -221,7 +227,7 @@ def main():
                 date_column, pred_column = st.columns(2)
                 with date_column:
                     try :
-                        date = st.selectbox(decide_date_column,(train_df.select_dtypes(include=['object','datetime64','float64', 'int64']).columns.tolist()))
+                        date = st.selectbox(decide_date_column,(train_df.select_dtypes(include=['object','datetime64']).columns.tolist()))
                         # date컬럼이 datetime으로 바뀌지 않으면
                         train_df[date] = pd.to_datetime(train_df[date])
                     except:
@@ -267,7 +273,6 @@ def main():
                         
                         pred_start_index = train_df[train_df[date] == pd.to_datetime(pred_start)].index[0]
                         data_arrange = [train_start_index, train_end_index, test_start_index, test_end_index, pred_start_index, pred_end]
-
                     except:
                         _, date_column_not_exist = st.columns([0.5, 3.5])
                         with date_column_not_exist:
@@ -318,59 +323,64 @@ def main():
 
             with train_test:
                 if uploaded_file:
-                    if st.button(training_validation_model_button, use_container_width=True) and uploaded_file:
-                        with st.spinner(training_model_spinner):
-                            response = requests.post("http://localhost:8001/time_train", files=csv_files, data={'data_arranges':list(data_arrange),
-                                                                                                                'window_size':int(window_size),
-                                                                                                                'horizon_factor':int(horizon_factor),
-                                                                                                                'epoch':int(epoch),
-                                                                                                                'learning_rate':float(learning_rate),
-                                                                                                                'pred_col': int_col,
-                                                                                                                'date': date})
-                        if response.ok:
-                            res = response.json()
-                            if res['data_success']:
-                                test_x_tensor = res['test_x_tensor']
-                            else:
-                                # window_size > scaled_test 인 경우 진행 불가
-                                st.write('현재 윈도우 사이즈 ' + str(window_size) + '을(를)' + str(res['scaled_test']) + ' 또는 '+ str(res['scaled_train'])+'의 갯수보다 줄여주세요')
-                        else:
-                            st.write(response)
-                    with prediction:
-                        if uploaded_file and st.button(prediction_model_button, use_container_width=True):
-                            try:
-                                result = requests.post("http://localhost:8001/time_pred", data={'test_x_tensor':list(test_x_tensor),
-                                                                                                'num_features':num_features,
-                                                                                                'window_size':int(window_size)})
-                                if result.ok:
-                                    resu = result.json()
-                                    pred_list = resu['pred_list']
-                                    add_pred_list = resu['predict_additional_list']
+                    if train_start < train_end: # 학습의 범위에서 시작이 끝보다 크게 설정 되었을 때
+                        if st.button(training_validation_model_button, use_container_width=True) and uploaded_file:
+                            prev_window_size = int(window_size)
+                            with st.spinner(training_model_spinner):
+                                response = requests.post("http://localhost:8001/time_train", files=csv_files, data={'data_arranges':list(data_arrange),
+                                                                                                                    'window_size':int(window_size),
+                                                                                                                    'horizon_factor':int(horizon_factor),
+                                                                                                                    'epoch':int(epoch),
+                                                                                                                    'learning_rate':float(learning_rate),
+                                                                                                                    'pred_col': int_col,
+                                                                                                                    'date': date})
+                                
+                                if response.ok:
+                                    res = response.json()
+                                    if res['data_success']:
+                                        test_x_tensor = res['test_x_tensor']
+                                        st.write(training_model_complete)
+                                    else:
+                                        # window_size > scaled_test 인 경우 진행 불가
+                                        st.write('윈도우 사이즈를 ' + str(res['scaled_size']) + '보다 줄여서 학습을 진행해 주세요')
                                 else:
-                                    st.write(result)
-                            except:
-                                st.write('학습을 먼저 해주세요')
+                                    st.write(response)
+
+                        # prediction이 안에 있는 이유는 잘못된 학습 범위나 파일을 업로드하지 않았을 때 한번에 처리하기 위함 
+                        with prediction:
+                            if uploaded_file and st.button(prediction_model_button, use_container_width=True):
+                                try:
+                                    if prev_window_size == int(window_size): 
+                                        result_req = requests.post("http://localhost:8001/time_pred", data={'test_x_tensor':list(test_x_tensor),
+                                                                                                            'num_features':num_features,
+                                                                                                            'window_size':int(window_size)})
+                                        if result_req.ok:
+                                            resu = result_req.json()
+                                            pred_list = resu['pred_list']
+                                            add_pred_list = resu['predict_additional_list']
+                                        else:
+                                            st.write(result_req)
+                                    else:
+                                        st.write(after_train)
+                                except:
+                                    st.write(after_train)    
+                    else:
+                        st.caption('학습 범위를 제대로 설정해주세요')
                 else:
                     st.caption(upload_train_csv)
 
         with pred_result:
-            if 'result' not in st.session_state:
-                st.session_state['result'] = False
-            
             try:
-                try:
-                    st.write(time_series_forecasting)
+                st.write(time_series_forecasting)
+                if result_req.ok:
                     line_chart(train_df, int_col, pred_list, add_pred_list, date)
-                    st.session_state['result'] = False
-                except:
-                    st.text_area('please model train', pred_graph, height = 440, disabled = True, label_visibility='collapsed')
             except:
-                st.text_area('', pred_graph, height = 440, disabled = True, label_visibility='collapsed')
-                                    
+                st.text_area(' ', pred_graph, height = 454, disabled = True, label_visibility='collapsed')
+
             _, _, download = st.columns([4, 4, 2.1])
             with download:
                 try:
-                    if uploaded_file and result.ok:
+                    if uploaded_file and result_req.ok:
                         time_series_model = requests.get('http://localhost:8001/time_series_model_download')       
                         st.download_button(label = model_download,
                                         data = time_series_model.content,
@@ -378,7 +388,7 @@ def main():
                                         use_container_width=True)
                 except:
                     st.caption(pred_after_down)
-
+                    
 # For running this file individually
 # if __name__ == "__main__":
 #     app()

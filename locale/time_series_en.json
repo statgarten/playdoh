@@ -16,11 +16,11 @@
 
         "date_column_not_exist_select_column":"The range of dates doesn't exist, or please set the column correctly",
 
-        "upload_train_csv":"Please upload a csv",
+        "upload_train_csv":"Please upload a file",
 
         "upload_info":"if you uploads file, you can choice column and decide data scope",
 
-        "expander_train_prediction":"Training Model and prediction",
+        "expander_train_prediction":"Training model and prediction",
 
         "HP_learning_rate":"Learning rate :question:",
         "HP_epoch":"Epoch :question:",
@@ -37,11 +37,14 @@
         
         "training_validation_model_button":"Model train and test",
         "training_model_spinner":"Model is training. Don't click other button",
+        "training_model_complete":"training_model_complete",
         "prediction_model_button":"Prediction",
+
+        "after_train":"Please training model",
 
         "time_series_forecasting":"Time series forecasting result",
 
-        "pred_graph" : "if training, validation and prediction is progressed, you can see result graph",
+        "pred_graph" : "if training, testing and prediction is progressed, you can see result graph",
 
         "pred_after_down": "Downloadable model when forecasting!",
 
