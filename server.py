@@ -503,19 +503,17 @@ def download_time_series_model():
 
 ########### Sentiment Analysis #############
 
-model_name = "./pretrained_model/kobert_ft"
-labels = {0: '기쁨', 1: '우울', 2: '분노', 3: '두려움', 4: '사랑', 5: '놀람', 6: '중립'}
-
-# Load model & tokenizer 
-sentiment_analysis_model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels = 7)
-tokenizer = KoBERTTokenizer.from_pretrained(model_name, truncation_side="left") 
 @app.post("/sentiment_analysis")
 async def predict_sentiment_endpoint(request: Request):
+    labels = {0: '기쁨', 1: '우울', 2: '분노', 3: '두려움', 4: '사랑', 5: '놀람', 6: '중립'}
+    model_name = "./pretrained_model/kobert_ft"
+    model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels = 7)
+    tokenizer = KoBERTTokenizer.from_pretrained(model_name, truncation_side="left") 
     data = await request.json()
     text = data.get('text', '')
 
     inputs = tokenizer(text, truncation=True, padding=True, max_length = 512, return_tensors="pt")
-    output = sentiment_analysis_model(**inputs)
+    output = model(**inputs)
     logits = output.logits
     probabilities = torch.nn.functional.softmax(logits, dim=-1)
     prob_to_numpy = probabilities.detach().cpu().numpy()[0] 
@@ -527,37 +525,43 @@ async def predict_sentiment_endpoint(request: Request):
 ########### Sentiment Analysis End #############
 
 ########### Speech2Text #############
-# from fastapi import UploadFile, File
-# from pydub import AudioSegment
-# from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC
-# import soundfile as sf
-# import torch
-# import librosa
-# import os
-# from starlette.responses import JSONResponse
+import tempfile
+import os
+from scipy.signal import resample
+from pydub import AudioSegment
 
-# model_name = "./pretrained_model/wav2vec2"
+def convert_audio_to_wav(file_path):
+    audio = AudioSegment.from_file(file_path)
+    wav_path = file_path.replace(".mp3", ".wav").replace(".wma", ".wav").replace(".flac", ".wav").replace(".ogg", ".wav") 
+    audio.export(wav_path, format="wav")
+    return wav_path
 
-# # Load model & tokenizer 
-# processor = Wav2Vec2Processor.from_pretrained(model_name)
-# model = Wav2Vec2ForCTC.from_pretrained(model_name)
+@app.post("/speech_to_text")
+async def transcribe_endpoint(file: UploadFile = File(...)):
+    model_name = "./pretrained_model/wav2vec2"
+    processor = Wav2Vec2Processor.from_pretrained(model_name)
+    model = Wav2Vec2ForCTC.from_pretrained(model_name)
 
-# @app.post("/stt")
-# async def speech2text(file: UploadFile = File(...)):
-#     audio_file = await file.read()
-
-#     # load audio file and resample to 16kHz
-#     audio, rate = librosa.load(io.BytesIO(audio_file), sr=None)
-#     if len(audio.shape) > 1: 
-#         audio = audio[:,0] + audio[:,1]
-#     if rate != 16000:
-#         audio = librosa.resample(audio, rate, 16000)
-
-#     input_values = processor(audio, return_tensors="pt", sampling_rate=16000).input_values # tokenize
-#     logits = model(input_values).logits
-#     predicted_ids = torch.argmax(logits, dim=-1)
-#     transcription = processor.batch_decode(predicted_ids)
+    # Save temporary audio file
+    extension = os.path.splitext(file.filename)[1]  # Get the file extension
+    temp_audio_file = tempfile.NamedTemporaryFile(delete=False, suffix=extension)
+    audio_file = await file.read()
+    temp_audio_file.write(audio_file)
+    temp_audio_file.close()
     
-#     # return JSONResponse(content={"transcription": transcription})
-#     return {"transcription": transcription}
+    wav_path = convert_audio_to_wav(temp_audio_file.name)
+    audio, rate = librosa.load(wav_path, sr=None)
+
+    if len(audio.shape) > 1: 
+        audio = audio[:,0] + audio[:,1]
+    if rate != 16000:
+        num_samples = int(audio.shape[0] * 16000 / rate)
+        audio = resample(audio, num_samples)
+
+    input_values = processor(audio, return_tensors="pt", sampling_rate=16000).input_values # tokenize
+    logits = model(input_values).logits
+    predicted_ids = torch.argmax(logits, dim=-1)
+    transcription = processor.batch_decode(predicted_ids)
+
+    return {"transcription": transcription}
 ########### Speech2Text End #############

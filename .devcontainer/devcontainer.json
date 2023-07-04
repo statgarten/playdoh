@@ -12,7 +12,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pip3 install --user -r requirements.txt && sudo apt update && sudo apt install -y libsndfile1 ffmpeg"
+	"postCreateCommand": "pip3 install --user -r requirements.txt && sudo apt-get update && sudo apt-get install -y libsndfile1 ffmpeg"
 
 	// Configure tool-specific properties.
 	// "customizations": {},

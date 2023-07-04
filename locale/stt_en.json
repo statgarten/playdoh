@@ -1,9 +1,10 @@
 {
     "en":{
 
-        "sub_title":"Multiple Sentiment Analysis",
-        "enter_text":"Enter your text here",
-        "analyze_button": "Analyze"
+        "sub_title":"Speech-to-Text",
+        "choose_audio":"Choose an audio file",
+        "transcribe_button": "Transcribe",
+        "download": "Download & Clear"
   
         }
   }
