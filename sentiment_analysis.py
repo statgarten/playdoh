@@ -14,7 +14,7 @@ def main():
     st.header(sub_title)
 
     left_column, right_column = st.columns(2) 
-    ll_column, lr_column, rl_column, rr_column   = st.columns([1, 1, 1, 1])
+    ll_column, lr_column, rl_column, rr_column   = st.columns(4)
 
     # Text input
     enter_text = translate('enter_text', st.session_state.ko_en)
