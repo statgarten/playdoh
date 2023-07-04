@@ -40,9 +40,9 @@ def main():
 
     if lr_column.button(analyze_button, use_container_width=True):
         if text == "":
-            ll_column.error("놉")
+            ll_column.error(translate('null_alert', st.session_state.ko_en))
         elif text.encode().isalpha():
-            ll_column.error("놉놉놉")
+            ll_column.error(translate('en_alert', st.session_state.ko_en))
         else:
             # Send POST request to the FastAPI server
             response = requests.post('http://localhost:8001/sentiment_analysis', json={'text': text})
@@ -79,7 +79,7 @@ def main():
             chart_placeholder.altair_chart(chart, use_container_width=True)
 
     _, right_column = st.columns(2)
-    right_column.caption(f'<div style="text-align: right;">"Model Source: https://github.com/SKTBrain/KoBERT"</div>', unsafe_allow_html=True)
+    right_column.caption(f'<div style="text-align: right;">Model Source: https://github.com/SKTBrain/KoBERT</div>', unsafe_allow_html=True)
 
 # For running this file individually
 # if __name__ == "__main__":
