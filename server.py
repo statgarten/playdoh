@@ -559,6 +559,13 @@ async def predict_sentiment_endpoint(request: Request):
 import tempfile
 import os
 from scipy.signal import resample
+from pydub import AudioSegment
+
+def convert_audio_to_wav(file_path):
+    audio = AudioSegment.from_file(file_path)
+    wav_path = file_path.replace(".mp3", ".wav").replace(".wma", ".wav")
+    audio.export(wav_path, format="wav")
+    return wav_path
 
 @app.post("/speech_to_text")
 async def transcribe_endpoint(file: UploadFile = File(...)):
@@ -572,8 +579,9 @@ async def transcribe_endpoint(file: UploadFile = File(...)):
     audio_file = await file.read()
     temp_audio_file.write(audio_file)
     temp_audio_file.close()
-
-    audio, rate = librosa.load(temp_audio_file.name, sr=None)
+    
+    wav_path = convert_audio_to_wav(temp_audio_file.name)
+    audio, rate = librosa.load(wav_path, sr=None)
 
     if len(audio.shape) > 1: 
         audio = audio[:,0] + audio[:,1]
