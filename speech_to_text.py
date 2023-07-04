@@ -1,14 +1,20 @@
 import streamlit as st
 import requests
 import io
+import json
 
+def translate(key, language):
+    with open(f'locale/stt_{language}.json', "r", encoding='utf-8') as file:
+        translations = json.load(file)
+        return translations[language][key]
+    
 def main():
-    st.header("Speech-to-Text with wav2vec")
+    st.header(translate('sub_title', st.session_state.ko_en))
 
     left_column, right_column = st.columns(2)
-    uploaded_file = left_column.file_uploader("Choose an audio file", type=["wav", "mp3", "flac", "ogg"])
+    uploaded_file = left_column.file_uploader(translate('choose_audio', st.session_state.ko_en), type=["wav", "mp3", "flac", "ogg"])
     ll_column, lr_column, rl_column, rr_column   = st.columns(4)
-    submit_button = lr_column.button("Transcribe it!", use_container_width=True)
+    submit_button = lr_column.button(translate('transcribe_button', st.session_state.ko_en), use_container_width=True)
 
     if uploaded_file is not None:
         st.session_state.transcription = None
@@ -24,7 +30,7 @@ def main():
                     st.session_state.transcription = ''.join(transcription)
                     st.text_area(label = "Transcription:", value = st.session_state.transcription, disabled=True)
                     _,_,_,_,_,rmr_column   = st.columns(6)
-                    rmr_column.download_button('Download & Clear', st.session_state.transcription, mime='text/plain')
+                    rmr_column.download_button(translate('download', st.session_state.ko_en), st.session_state.transcription, mime='text/plain')
     _, right_column = st.columns(2)
     right_column.caption('<div style="text-align: right;">Model Source: https://huggingface.co/facebook/wav2vec2-base-960h</div>', unsafe_allow_html=True)
 

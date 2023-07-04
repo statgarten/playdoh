@@ -1,9 +1,10 @@
 {
-    "en":{
+    "ko":{
 
-        "sub_title":"Multiple Sentiment Analysis",
-        "enter_text":"Enter your text here",
-        "analyze_button": "Analyze"
+        "sub_title":"음성-텍스트 변환",
+        "choose_audio":"음성 파일을 선택해주세요",
+        "transcribe_button": "변환",
+        "download": "다운로드 후 초기화"
   
         }
   }
