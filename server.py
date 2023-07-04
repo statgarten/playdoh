@@ -532,7 +532,7 @@ from pydub import AudioSegment
 
 def convert_audio_to_wav(file_path):
     audio = AudioSegment.from_file(file_path)
-    wav_path = file_path.replace(".mp3", ".wav").replace(".wma", ".wav")
+    wav_path = file_path.replace(".mp3", ".wav").replace(".wma", ".wav").replace(".flac", ".wav").replace(".ogg", ".wav") 
     audio.export(wav_path, format="wav")
     return wav_path
 

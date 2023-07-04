@@ -4,25 +4,29 @@ import io
 
 def main():
     st.header("Speech-to-Text with wav2vec")
-    left_column, right_column = st.columns(2)
-    ll_column, lr_column, rl_column, rr_column   = st.columns(4)
 
-    uploaded_file = left_column.file_uploader("Choose an audio file", type=["wav", "mp3", "wma"])
+    left_column, right_column = st.columns(2)
+    uploaded_file = left_column.file_uploader("Choose an audio file", type=["wav", "mp3", "flac", "ogg"])
+    ll_column, lr_column, rl_column, rr_column   = st.columns(4)
     submit_button = lr_column.button("Transcribe it!", use_container_width=True)
 
     if uploaded_file is not None:
+        st.session_state.transcription = None
         right_column.markdown('#')
         right_column.audio(uploaded_file)
         wav_data = io.BytesIO(uploaded_file.read())
         if submit_button:
                 response = requests.post("http://localhost:8001/speech_to_text", files={"file": wav_data})
-                if response.status_code == 200:
-                    transcription = response.json()["transcription"]
-                    st.write("Transcription:")
-                    st.markdown(transcription[0])
-                    st.download_button('Download', transcription[0], mime='text/plain')
-                else:
+                if response.status_code != 200:
                     st.error(response.status_code)
+                else:
+                    transcription = response.json()["transcription"]
+                    st.session_state.transcription = ''.join(transcription)
+                    st.text_area(label = "Transcription:", value = st.session_state.transcription, disabled=True)
+                    _,_,_,_,_,rmr_column   = st.columns(6)
+                    rmr_column.download_button('Download & Clear', st.session_state.transcription, mime='text/plain')
+    _, right_column = st.columns(2)
+    right_column.caption('<div style="text-align: right;">Model Source: https://huggingface.co/facebook/wav2vec2-base-960h</div>', unsafe_allow_html=True)
 
 # For running this file individually
 # if __name__ == "__main__":
