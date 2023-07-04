@@ -5,7 +5,7 @@ ADD . /app
 
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y git
+    apt-get install -y git libsndfile1 ffmpeg
 
 RUN pip install --no-cache-dir -r requirements.txt
 
