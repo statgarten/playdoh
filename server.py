@@ -525,37 +525,6 @@ async def predict_sentiment_endpoint(request: Request):
 ########### Sentiment Analysis End #############
 
 ########### Speech2Text #############
-# from fastapi import UploadFile, File
-# from pydub import AudioSegment
-# from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC
-# import soundfile as sf
-# import torch
-# import librosa
-# import os
-# from starlette.responses import JSONResponse
-
-# @app.post("/speech_to_text")
-# async def speech2text_endpoint(file: UploadFile = File(...)):
-#     model_name = "./pretrained_model/wav2vec2"
-#     processor = Wav2Vec2Processor.from_pretrained(model_name)
-#     model = Wav2Vec2ForCTC.from_pretrained(model_name)
-    
-#     audio_file = await file.read()
-
-#     # load audio file and resample to 16kHz
-#     audio, rate = librosa.load(io.BytesIO(audio_file), sr=None)
-#     if len(audio.shape) > 1: 
-#         audio = audio[:,0] + audio[:,1]
-#     if rate != 16000:
-#         audio = librosa.resample(audio, rate, 16000)
-
-#     input_values = processor(audio, return_tensors="pt", sampling_rate=16000).input_values # tokenize
-#     logits = model(input_values).logits
-#     predicted_ids = torch.argmax(logits, dim=-1)
-#     transcription = processor.batch_decode(predicted_ids)
-    
-#     # return JSONResponse(content={"transcription": transcription})
-#     return {"transcription": transcription}
 import tempfile
 import os
 from scipy.signal import resample
