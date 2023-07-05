@@ -3,12 +3,19 @@ import image_classification as img_cls
 import sentiment_analysis as sent_ans
 import speech_to_text as stt
 import time_series_forecasting as timeseries
+from PIL import Image
 
 def main():
 
     st.set_page_config(layout="wide")
+
+    logo = Image.open('playdoh_logo.png')
+    st.sidebar.image(logo)
  
-    st.title("Welcome to Playdoh!")
+    st.sidebar.markdown(
+        f"<a style='display: block; text-align: center;' href=https://github.com/statgarten/playdoh>Github link</a>",
+        unsafe_allow_html=True,
+    )
     
     app_options = {
         "Image Classification": img_cls,
@@ -17,7 +24,7 @@ def main():
         "Time Series Forecasting": timeseries
     }
     
-    app_choice = st.sidebar.selectbox("Choose an application", options=list(app_options.keys()))
+    app_choice = st.sidebar.selectbox("", options=list(app_options.keys()))
 
     # 기본이 english
     if 'ko_en' not in st.session_state:

@@ -221,18 +221,18 @@ def main():
     explanation_session_clear()
 
     # 언어에 따른 업로드 문구 변경
-    if st.session_state.ko_en == 'en':
-        st.markdown("""
-            <style>
-            [data-testid="stFileUploadDropzone"] div div::before {content:"Upload your image"}
-            </style>
-        """,unsafe_allow_html=True)
-    else:
-        st.markdown("""
-            <style>
-            [data-testid="stFileUploadDropzone"] div div::before {content:"사진을 업로드 해주세요"}
-            </style>
-        """,unsafe_allow_html=True)
+    # if st.session_state.ko_en == 'en':
+    #     st.markdown("""
+    #         <style>
+    #         [data-testid="stFileUploadDropzone"] div div::before {content:"Upload your image"}
+    #         </style>
+    #     """,unsafe_allow_html=True)
+    # else:
+    #     st.markdown("""
+    #         <style>
+    #         [data-testid="stFileUploadDropzone"] div div::before {content:"사진을 업로드 해주세요"}
+    #         </style>
+    #     """,unsafe_allow_html=True)
 
     # st.session_state['num_classes'] 초기화
     if 'num_classes' not in st.session_state:
@@ -462,6 +462,9 @@ def main():
                 st.download_button(label = model_download,
                                 data = image_classification_model.content,
                                 file_name = 'image_classification_model.pth')
+    
+    _, right_column = st.columns(2)
+    right_column.caption(f'<div style="text-align: right;">Model Source: https://huggingface.co/google/mobilenet_v1_0.75_192</div>', unsafe_allow_html=True)
     
 # For running this file individually
 # if __name__ == "__main__":
