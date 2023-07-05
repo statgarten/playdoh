@@ -186,7 +186,7 @@ def translate(key, language):
 def css_style():
     st.markdown("""
                 <style>
-                .block-container div:nth-child(6) > ul > li div:nth-child(2) div.streamlit-expanderContent > div:nth-child(1) > div > div:nth-child(1) .stButton button{
+                .block-container div:nth-child(4) > ul > li div:nth-child(2) div.streamlit-expanderContent > div:nth-child(1) > div > div:nth-child(1) .stButton button{
                     background: none!important;
                     border: none;
                     padding: 0!important;

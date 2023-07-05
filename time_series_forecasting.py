@@ -87,7 +87,7 @@ def css_style():
     st.markdown("""
         <style>
                
-            .block-container div:nth-child(5) > ul > li > div:nth-child(2) > div > div:nth-child(1) > div > div > div > div:nth-child(1) > div > div:nth-child(1) > div > div > div:nth-child(1) > div:nth-child(1) > div > div:nth-child(1) > div > button{
+            .block-container div:nth-child(4) > ul > li > div:nth-child(2) > div > div:nth-child(1) > div > div > div > div:nth-child(1) > div > div:nth-child(1) > div > div > div:nth-child(1) > div:nth-child(1) > div > div:nth-child(1) > div > button{
                     background: none!important;
                     border: none;
                     padding: 0!important;
@@ -96,7 +96,7 @@ def css_style():
                     border: none !important;
                 }
 
-            .block-container div:nth-child(5) > ul > li > div:nth-child(2) > div > div:nth-child(1) > div > div > div > div:nth-child(1) > div > div:nth-child(2) > div > div > div:nth-child(1) > div:nth-child(1) > div > div:nth-child(1) > div > button{
+            .block-container div:nth-child(4) > ul > li > div:nth-child(2) > div > div:nth-child(1) > div > div > div > div:nth-child(1) > div > div:nth-child(2) > div > div > div:nth-child(1) > div:nth-child(1) > div > div:nth-child(1) > div > button{
                     background: none!important;
                     border: none;
                     padding: 0!important;
@@ -105,7 +105,7 @@ def css_style():
                     border: none !important;
                 }
 
-            .block-container div:nth-child(5) > ul > li > div:nth-child(2) > div > div:nth-child(1) > div > div > div > div:nth-child(1) > div > div:nth-child(1) > div > div > div:nth-child(3) > div:nth-child(1) > div > div:nth-child(1) > div > button{
+            .block-container div:nth-child(4) > ul > li > div:nth-child(2) > div > div:nth-child(1) > div > div > div > div:nth-child(1) > div > div:nth-child(1) > div > div > div:nth-child(3) > div:nth-child(1) > div > div:nth-child(1) > div > button{
                     background: none!important;
                     border: none;
                     padding: 0!important;
@@ -114,7 +114,7 @@ def css_style():
                     border: none !important;
                 }
 
-            .block-container div:nth-child(5) > ul > li > div:nth-child(2) > div > div:nth-child(1) > div > div > div > div:nth-child(1) > div > div:nth-child(2) > div > div > div:nth-child(3) > div:nth-child(1) > div > div:nth-child(1) > div > button{
+            .block-container div:nth-child(4) > ul > li > div:nth-child(2) > div > div:nth-child(1) > div > div > div > div:nth-child(1) > div > div:nth-child(2) > div > div > div:nth-child(3) > div:nth-child(1) > div > div:nth-child(1) > div > button{
                     background: none!important;
                     border: none;
                     padding: 0!important;
