@@ -134,9 +134,5 @@ dmypy.json
 
 .DS_Store
 
-# models
-pretrained_model/kobert_ft
-pretrained_model/mobilenet_v3
-pretrained_model/wav2vec2
-trained_model/image_classification_model.pth
-trained_model/time_series_forecasting.pth
+# trained models
+trained_model/
