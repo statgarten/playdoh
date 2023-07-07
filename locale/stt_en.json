@@ -4,7 +4,15 @@
         "sub_title":"Speech-to-Text",
         "choose_audio":"Choose an audio file",
         "transcribe_button": "Transcribe",
-        "download": "Download & Clear"
+        "download": "Download & Clear",
   
+        "radio":"please select your network",
+
+        "online":"online",
+        "offline":"offline",
+
+        "Client_ID":"Client ID",
+        "Client_Secret":"Client Secret"
+
         }
   }

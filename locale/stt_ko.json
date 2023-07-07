@@ -4,7 +4,15 @@
         "sub_title":"음성-텍스트 변환",
         "choose_audio":"음성 파일을 선택해주세요",
         "transcribe_button": "변환",
-        "download": "다운로드 후 초기화"
+        "download": "다운로드 후 초기화",
   
+        "radio":"현재 네트워크 환경을 선택해 주세요",
+
+        "online":"온라인",
+        "offline":"오프라인",
+
+        "Client_ID":"클라이언트 아이디",
+        "Client_Secret":"클라이언트 시크릿"
+
         }
   }

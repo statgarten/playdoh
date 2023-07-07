@@ -34,6 +34,10 @@ from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC
 import soundfile as sf
 import librosa
 
+import requests
+import time
+import json
+
 app = FastAPI()
 
 ######## Image Calssification ########
@@ -562,6 +566,58 @@ async def transcribe_endpoint(file: UploadFile = File(...)):
     logits = model(input_values).logits
     predicted_ids = torch.argmax(logits, dim=-1)
     transcription = processor.batch_decode(predicted_ids)
+
+    return {"transcription": transcription}
+
+@app.post("/speech_to_text_api")
+async def transcribe_api_endpoint(client_id: str = Form(...),
+                                  client_secret: str = Form(...),
+                                  file: UploadFile = File(...)):
+    
+    # Save temporary audio file
+    extension = os.path.splitext(file.filename)[1]  # Get the file extension
+    temp_audio_file = tempfile.NamedTemporaryFile(delete=False, suffix=extension)
+    audio_file = await file.read()
+    temp_audio_file.write(audio_file)
+    temp_audio_file.close()
+    
+    wav_path = convert_audio_to_wav(temp_audio_file.name)
+
+    resp_token = requests.post(
+    'https://openapi.vito.ai/v1/authenticate',
+    data={'client_id': client_id,
+          'client_secret': client_secret}
+    )
+    resp_token.raise_for_status()
+    access_token = resp_token.json()['access_token']
+    
+    time.sleep(5)
+
+    config = {
+    "diarization": {
+        "use_verification": False
+        },
+        "use_multi_channel": False
+    }
+
+    resp_api = requests.post(
+        'https://openapi.vito.ai/v1/transcribe',
+        headers={'Authorization': 'bearer '+ access_token},
+        data={'config': json.dumps(config)},
+        files={'file': open(wav_path, 'rb')}
+    )
+
+    resp_api.raise_for_status()
+    api_id = resp_api.json()['id']
+
+    time.sleep(20)
+
+    resp_msg = requests.get(
+    'https://openapi.vito.ai/v1/transcribe/'+ api_id,
+    headers={'Authorization': 'bearer '+ access_token},
+    )
+    
+    transcription = resp_msg.json()['results']['utterances'][0]['msg']
 
     return {"transcription": transcription}
 ########### Speech2Text End #############
