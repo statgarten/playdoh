@@ -6,13 +6,18 @@
         "transcribe_button": "Transcribe",
         "download": "Download & Clear",
   
-        "radio":"please select your network",
+        "radio":"please select your file language",
 
-        "online":"online",
-        "offline":"offline",
+        "korean":"korean",
+        "english":"english",
 
         "Client_ID":"Client ID",
-        "Client_Secret":"Client Secret"
+        "Client_Secret":"Client Secret",
+
+        "select_korean":"If you select korean, your network should be online",
+
+        "link_expl":"Get a Client ID and Client Secret through the links below, and enter them below.",
+        "link_name":"Link"
 
         }
   }

@@ -14,15 +14,15 @@ def main():
     left_column, right_column = st.columns(2)
     uploaded_file = left_column.file_uploader(translate('choose_audio', st.session_state.ko_en), type=["wav", "mp3", "flac", "ogg"])
     
-    mode = st.radio(translate('radio', st.session_state.ko_en), (translate('online', st.session_state.ko_en), 
-                                                                 translate('offline', st.session_state.ko_en)), horizontal=True)
+    mode = st.radio(translate('radio', st.session_state.ko_en), (translate('korean', st.session_state.ko_en), 
+                                                                 translate('english', st.session_state.ko_en)), horizontal=True)
     
-    if mode == 'online' or mode == '온라인':
+    if mode == 'korean' or mode == '한국어':
 
-        api_addr, _, _, _  = st.columns(4)
-
+        api_addr, _, _  = st.columns([2, 1, 1])
+        
         api_addr.markdown(
-        f"<a style='display: block; text-align: left;' href=https://developers.vito.ai/docs/>Client ID and Secret link</a>",
+        f"{translate('link_expl', st.session_state.ko_en)}<a style='display: block; text-align: left;' href=https://developers.vito.ai/docs/>{translate('link_name', st.session_state.ko_en)}</a>",
         unsafe_allow_html=True,
         )
 
@@ -30,31 +30,35 @@ def main():
 
         client_id = client_id_input.text_input(translate('Client_ID', st.session_state.ko_en),value="")
         client_secret = client_secret_input.text_input(translate('Client_Secret', st.session_state.ko_en),value="")
+        api_error, _, _  = st.columns([2, 1, 1])
+        api_error.error(translate('select_korean', st.session_state.ko_en))
 
         ll_column, lr_column, rl_column, rr_column   = st.columns(4)
         submit_button = lr_column.button(translate('transcribe_button', st.session_state.ko_en), use_container_width=True)
 
-        
-        if uploaded_file is not None and len(client_id) > 0 and len(client_secret) > 0:
+        if uploaded_file is not None :
             st.session_state.transcription = None
             
             right_column.markdown('#')
             right_column.audio(uploaded_file)
 
-            wav_data = io.BytesIO(uploaded_file.read())
-            if submit_button:
-                response = requests.post("http://localhost:8001/speech_to_text_api", files={"file": wav_data}, data={'client_id': client_id,
-                                                                                                                     'client_secret': client_secret})
-                if response.status_code != 200:
-                    st.error(response.status_code)
-                else:
-                    transcription = response.json()["transcription"]
-                    st.session_state.transcription = ''.join(transcription)
-                    st.text_area(label = "Transcription:", value = st.session_state.transcription, disabled=True)
+            if len(client_id) > 0 and len(client_secret) > 0 :
+
+                wav_data = io.BytesIO(uploaded_file.read())
+
+                if submit_button:
+                    response = requests.post("http://localhost:8001/speech_to_text_api", files={"file": wav_data}, data={'client_id': client_id,
+                                                                                                                        'client_secret': client_secret})
+                    if response.status_code != 200:
+                        st.error(response.status_code)
+                    else:
+                        transcription = response.json()["transcription"]
+                        st.session_state.transcription = ''.join(transcription)
+                        st.text_area(label = "Transcription:", value = st.session_state.transcription, disabled=True)
         _, right_column = st.columns(2)
         right_column.caption('<div style="text-align: right;">Model Api: https://developers.vito.ai/</div>', unsafe_allow_html=True)
 
-    elif mode == 'offline' or mode == '오프라인':
+    elif mode == 'english' or mode == '영어':
         ll_column, lr_column, rl_column, rr_column   = st.columns(4)
         submit_button = lr_column.button(translate('transcribe_button', st.session_state.ko_en), use_container_width=True)
         if uploaded_file is not None:
