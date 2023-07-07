@@ -22,7 +22,7 @@ def main():
         api_addr, _, _  = st.columns([2, 1, 1])
         
         api_addr.markdown(
-        f"{translate('link_expl', st.session_state.ko_en)}<a style='display: block; text-align: left;' href=https://developers.vito.ai/docs/>{translate('link_name', st.session_state.ko_en)}</a>",
+        f"<p style='display: inline-block;'><span style='display:inline-block;'>1. {translate('link_expl', st.session_state.ko_en)}</span><a style='display: inline-block; text-align: left; float:right;' href=https://developers.vito.ai/docs/>{translate('link_name', st.session_state.ko_en)}</a></p><p>2. {translate('select_korean', st.session_state.ko_en)}</p><p>3. {translate('play_wav', st.session_state.ko_en)}</p>",
         unsafe_allow_html=True,
         )
 
@@ -30,8 +30,6 @@ def main():
 
         client_id = client_id_input.text_input(translate('Client_ID', st.session_state.ko_en),value="")
         client_secret = client_secret_input.text_input(translate('Client_Secret', st.session_state.ko_en),value="")
-        api_error, _, _  = st.columns([2, 1, 1])
-        api_error.error(translate('select_korean', st.session_state.ko_en))
 
         ll_column, lr_column, rl_column, rr_column   = st.columns(4)
         submit_button = lr_column.button(translate('transcribe_button', st.session_state.ko_en), use_container_width=True)
