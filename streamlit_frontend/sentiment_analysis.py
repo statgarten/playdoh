@@ -4,6 +4,12 @@ import pandas as pd
 import altair as alt
 import json
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+BACKEND_URL = os.getenv("BACKEND_URL")
+
 def translate(key, language):
     with open(f'locale/sentiment_{language}.json', "r", encoding='utf-8') as file:
         translations = json.load(file)
@@ -45,7 +51,7 @@ def main():
             ll_column.error(translate('en_alert', st.session_state.ko_en))
         else:
             # Send POST request to the FastAPI server
-            response = requests.post('http://localhost:8001/sentiment_analysis', json={'text': text})
+            response = requests.post(f'{BACKEND_URL}/sentiment_analysis', json={'text': text})
             sent_prob = response.json()['sent_prob']
 
             df  = pd.DataFrame(list(sent_prob.items()), columns=['sent', 'prob'])

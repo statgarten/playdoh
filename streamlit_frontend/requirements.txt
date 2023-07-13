@@ -1,0 +1,6 @@
+streamlit
+pandas
+pillow
+python-multipart
+streamlit-modal
+python-dotenv

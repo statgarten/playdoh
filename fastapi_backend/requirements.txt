@@ -14,6 +14,4 @@ python-multipart
 uvicorn 
 torchaudio
 librosa
-emoji
-streamlit-modal
 pydub

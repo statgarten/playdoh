@@ -8,6 +8,12 @@ import json
 from PIL import Image
 from io import BytesIO
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+BACKEND_URL = os.getenv("BACKEND_URL")
+
 # 학습 이미지 미리보기
 def train_preview_img(uploaded_images, label_name, no):
     img = Image.open(uploaded_images[label_name][no])
@@ -105,7 +111,7 @@ def create_label(train_labels, uploaded_images):
 
 # train request
 def train_request(file_bytes_list, create_labels, learning_rate, batch_size, epoch, opti, num_classes):
-    response = requests.post("http://localhost:8001/img_train", files=file_bytes_list, data={'labels':list(create_labels),
+    response = requests.post(f"{BACKEND_URL}/img_train", files=file_bytes_list, data={'labels':list(create_labels),
                                                                                             'learning_rate':float(learning_rate),
                                                                                             'batch_size':int(batch_size),
                                                                                             'epoch':int(epoch),
@@ -126,7 +132,7 @@ def test_image_upload_request(test_image):
     file_byte_test = test_byte_arr.getvalue()
     file_bytes_test_list.append(('files', BytesIO(file_byte_test)))
 
-    pred = requests.post("http://localhost:8001/img_test", files=file_bytes_test_list)
+    pred = requests.post(f"{BACKEND_URL}/img_test", files=file_bytes_test_list)
 
     return pred
 
@@ -458,7 +464,7 @@ def main():
         _, download_model = st.columns([8, 1.2])
         with download_model:
             if test_image and pred.ok:
-                image_classification_model = requests.get('http://localhost:8001/img_classification_model_download')
+                image_classification_model = requests.get(f'{BACKEND_URL}/img_classification_model_download')
                 st.download_button(label = model_download,
                                 data = image_classification_model.content,
                                 file_name = 'image_classification_model.pth')

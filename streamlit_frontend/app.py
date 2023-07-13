@@ -9,7 +9,7 @@ def main():
 
     st.set_page_config(layout="wide")
 
-    logo = Image.open('playdoh_logo.png')
+    logo = Image.open('./playdoh_logo.png')
     st.sidebar.image(logo, use_column_width=True)
  
     st.sidebar.markdown(

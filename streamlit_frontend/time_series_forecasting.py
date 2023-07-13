@@ -8,6 +8,12 @@ import json
 import datetime
 import io
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+BACKEND_URL = os.getenv("BACKEND_URL")
+
 # 원본 데이터와 예측 데이터를 가지고 라인그래프로 표현
 def line_chart(data_df, int_col, pred_list, predict_plus_data, date):
     
@@ -327,7 +333,7 @@ def main():
                         if st.button(training_validation_model_button, use_container_width=True) and uploaded_file:
                             prev_window_size = int(window_size)
                             with st.spinner(training_model_spinner):
-                                response = requests.post("http://localhost:8001/time_train", files=csv_files, data={'data_arranges':list(data_arrange),
+                                response = requests.post(f"{BACKEND_URL}/time_train", files=csv_files, data={'data_arranges':list(data_arrange),
                                                                                                                     'window_size':int(window_size),
                                                                                                                     'horizon_factor':int(horizon_factor),
                                                                                                                     'epoch':int(epoch),
@@ -351,7 +357,7 @@ def main():
                             if uploaded_file and st.button(prediction_model_button, use_container_width=True):
                                 try:
                                     if prev_window_size == int(window_size): 
-                                        result_req = requests.post("http://localhost:8001/time_pred", data={'test_x_tensor':list(test_x_tensor),
+                                        result_req = requests.post(f"{BACKEND_URL}/time_pred", data={'test_x_tensor':list(test_x_tensor),
                                                                                                             'num_features':num_features,
                                                                                                             'window_size':int(window_size)})
                                         if result_req.ok:
@@ -381,7 +387,7 @@ def main():
             with download:
                 try:
                     if uploaded_file and result_req.ok:
-                        time_series_model = requests.get('http://localhost:8001/time_series_model_download')       
+                        time_series_model = requests.get(f'{BACKEND_URL}/time_series_model_download')       
                         st.download_button(label = model_download,
                                         data = time_series_model.content,
                                         file_name = 'time_series_forecasting_model.pth',

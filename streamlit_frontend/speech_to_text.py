@@ -3,6 +3,12 @@ import requests
 import io
 import json
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+BACKEND_URL = os.getenv("BACKEND_URL")
+
 def translate(key, language):
     with open(f'locale/stt_{language}.json', "r", encoding='utf-8') as file:
         translations = json.load(file)
@@ -47,7 +53,7 @@ def main():
                 wav_data = io.BytesIO(uploaded_file.read())
 
                 if submit_button:
-                    response = requests.post("http://localhost:8001/speech_to_text_api", files={"file": wav_data}, data={'client_id': client_id,
+                    response = requests.post(f"{BACKEND_URL}/speech_to_text_api", files={"file": wav_data}, data={'client_id': client_id,
                                                                                                                         'client_secret': client_secret})
                     if response.status_code != 200:
                         st.error(response.status_code)
@@ -69,7 +75,7 @@ def main():
 
             wav_data = io.BytesIO(uploaded_file.read())
             if submit_button:
-                response = requests.post("http://localhost:8001/speech_to_text", files={"file": wav_data})
+                response = requests.post(f"{BACKEND_URL}/speech_to_text", files={"file": wav_data})
                 if response.status_code != 200:
                     st.error(response.status_code)
                 else:

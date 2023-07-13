@@ -135,4 +135,4 @@ dmypy.json
 .DS_Store
 
 # trained models
-trained_model/
+fastapi_backend/trained_model/
