@@ -4,7 +4,7 @@
         "sub_title":"Speech-to-Text",
         "choose_audio":"Choose an audio file",
         "transcribe_button": "Transcribe",
-        "download": "Download & Clear",
+        "download": "Download Result",
   
         "radio":"please select your file language",
 
@@ -14,10 +14,10 @@
         "Client_ID":"Client ID",
         "Client_Secret":"Client Secret",
 
-        "link_expl":"Get a Client ID and Client Secret through the links below, and enter them below.",
+        "link_expl":"Get a Client ID and Client Secret through the links, and enter them below",
         "link_name":"(Link)",
 
-        "select_korean":"If you select korean, your network should be online",
+        "select_korean":"Currently, STT for Korean is supported through the VITO Speech API",
 
         "play_wav":"Press  ▶   in the right playback bar to confirm that your voice file has been successfully uploaded"
 

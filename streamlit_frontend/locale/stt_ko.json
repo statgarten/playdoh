@@ -4,7 +4,7 @@
         "sub_title":"음성-텍스트 변환",
         "choose_audio":"음성 파일을 선택해주세요",
         "transcribe_button": "변환",
-        "download": "다운로드 후 초기화",
+        "download": "결과 다운로드",
   
         "radio":"현재 파일의 언어를 선택해 주세요",
 
@@ -14,10 +14,10 @@
         "Client_ID":"클라이언트 아이디",
         "Client_Secret":"클라이언트 시크릿",
 
-        "link_expl":"옆 링크를 통해 클라이언트 아이디와 클라이언트 시크릿을 발급받고, 아래에 입력해주세요.",
+        "link_expl":"링크를 통해 클라이언트 아이디와 클라이언트 시크릿을 발급받고, 아래에 입력해주세요",
         "link_name":"(링크)",
 
-        "select_korean":"한국어 선택 시 온라인 환경에서만 가능합니다",
+        "select_korean":"현재 한국어 대상 STT는 VITO Speech API를 통해 지원합니다",
 
         "play_wav":"오른쪽 재생바의  ▶  를 눌러 음성 파일이 잘 업로드 되었는지 확인해주세요"
         }

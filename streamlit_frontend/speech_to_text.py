@@ -28,7 +28,7 @@ def main():
         api_addr, _, _  = st.columns([2, 1, 1])
         
         api_addr.markdown(
-        f"<p style='display: inline-block;'><span style='display:inline-block;'>1. {translate('link_expl', st.session_state.ko_en)}</span><a style='display: inline-block; text-align: left; float:right;' href=https://developers.vito.ai/docs/>{translate('link_name', st.session_state.ko_en)}</a></p><p>2. {translate('select_korean', st.session_state.ko_en)}</p><p>3. {translate('play_wav', st.session_state.ko_en)}</p>",
+        f"<p style='display: inline-block;'><span style='display:inline-block;'><p>1. {translate('select_korean', st.session_state.ko_en)}</p>2. {translate('link_expl', st.session_state.ko_en)}<a style='display: inline-block; text-align: left;' href=https://developers.vito.ai/docs/>{translate('link_name', st.session_state.ko_en)}</a></p><p>3. {translate('play_wav', st.session_state.ko_en)}</p></span>",
         unsafe_allow_html=True,
         )
 
@@ -37,8 +37,8 @@ def main():
         client_id = client_id_input.text_input(translate('Client_ID', st.session_state.ko_en),value="")
         client_secret = client_secret_input.text_input(translate('Client_Secret', st.session_state.ko_en),value="")
 
-        ll_column, lr_column, rl_column, rr_column   = st.columns(4)
-        submit_button = lr_column.button(translate('transcribe_button', st.session_state.ko_en), use_container_width=True)
+        _,_,_,l4_column,_,_,_,_   = st.columns(8)
+        submit_button = l4_column.button(translate('transcribe_button', st.session_state.ko_en), use_container_width=True)
 
         if uploaded_file is not None :
             st.session_state.transcription = None
@@ -63,8 +63,8 @@ def main():
         right_column.caption('<div style="text-align: right;">Model Api: https://developers.vito.ai/</div>', unsafe_allow_html=True)
 
     elif mode == 'english' or mode == '영어':
-        ll_column, lr_column, rl_column, rr_column   = st.columns(4)
-        submit_button = lr_column.button(translate('transcribe_button', st.session_state.ko_en), use_container_width=True)
+        _,_,_,l4_column,_,_,_,_   = st.columns(8)
+        submit_button = l4_column.button(translate('transcribe_button', st.session_state.ko_en), use_container_width=True)
         if uploaded_file is not None:
             st.session_state.transcription = None
 
@@ -81,7 +81,7 @@ def main():
                     st.session_state.transcription = ''.join(transcription)
                     st.text_area(label = "Transcription:", value = st.session_state.transcription, disabled=True)
                     _,_,_,_,_,rmr_column   = st.columns(6)
-                    rmr_column.download_button(translate('download', st.session_state.ko_en), st.session_state.transcription, mime='text/plain')
+                    rmr_column.download_button(translate('download', st.session_state.ko_en), st.session_state.transcription, mime='text/plain', use_container_width=True)
         _, right_column = st.columns(2)
         right_column.caption('<div style="text-align: right;">Model Source: https://huggingface.co/facebook/wav2vec2-base-960h</div>', unsafe_allow_html=True)
 
