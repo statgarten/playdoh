@@ -10,7 +10,7 @@ services:
     depends_on:
       - backend
     volumes:
-        - ./streamlit_frontend:/app:consistent
+        - ./streamlit_frontend:/app
 
   backend:
     build: ./fastapi_backend

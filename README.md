@@ -7,8 +7,8 @@
 The playdoh package provides some applications that can be used easily by people who are not familiar with AI. This package offers the following features:
 
 - Image Classification
-- Sentiment Analysis From Text
-- Speech-to-Text Conversion
+- Sentiment Analysis
+- Speech-to-Text
 - Time Series Forecasting
 
 ## Prerequisite
@@ -23,16 +23,8 @@ The playdoh package provides some applications that can be used easily by people
 
 ## Instruction for Dev
 1. Clone playdoh and open it in VS Code.
-2. Install the 'Docker' and 'Dev Containers' extensions.
-3. Press F1(or Ctrl(Cmd) + Shift + P) and select 'Dev-Containers: Add Dev Container Configuration Files' -> 'Show All Definitions' -> 'Python3', then choose your desired Python version and select any additional features to use.
-4. If you wish to install additional python packages, add them to requirements.txt.
-5. Press F1(or Ctrl(Cmd) + Shift + P) and select 'Dev-Containers: Rebuild Container'.
-6. Open 2 terminals of the container and run the following commands:
+2. Build Docker images and run containers using Docker Compose with the following command:
 ```
-## terminal 1
-uvicorn server:app --reload --host=0.0.0.0 --port=8001
+docker-compose up -d
 ```
-```
-## terminal 2
-streamlit run app.py
-```
+3. If you make any modifications to the code, restart the container derived from the 'playdoh-frontend' image.

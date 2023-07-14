@@ -6,7 +6,6 @@ import time_series_forecasting as timeseries
 from PIL import Image
 
 def main():
-
     st.set_page_config(layout="wide")
 
     logo = Image.open('./playdoh_logo.png')
