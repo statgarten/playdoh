@@ -27,4 +27,4 @@ The playdoh package provides some applications that can be used easily by people
 ```
 docker-compose up -d
 ```
-3. If you make any modifications to the code, restart the container derived from the 'playdoh-frontend' image.
+3. If you make any modifications to the code, either on the frontend or backend, restart the respective container derived from the corresponding image.
