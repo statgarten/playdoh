@@ -183,12 +183,12 @@ def main():
     HP_learning_rate = translate('HP_learning_rate', st.session_state.ko_en)
     HP_epoch = translate('HP_epoch', st.session_state.ko_en)
     HP_window_size = translate('HP_window_size', st.session_state.ko_en)
-    HP_horizon_factor = translate('HP_horizon_factor', st.session_state.ko_en)
+    HP_forecast_horizon = translate('HP_forecast_horizon', st.session_state.ko_en)
 
     ex_learning_rate = translate('ex_learning_rate', st.session_state.ko_en)
     ex_epoch = translate('ex_epoch', st.session_state.ko_en)
     ex_window_size = translate('ex_window_size', st.session_state.ko_en)
-    ex_horizon_factor = translate('ex_horizon_factor', st.session_state.ko_en)
+    ex_forecast_horizon = translate('ex_forecast_horizon', st.session_state.ko_en)
 
     explanation_title = translate('explanation_title', st.session_state.ko_en)
     explanation_text = translate('explanation_text', st.session_state.ko_en)
@@ -293,7 +293,7 @@ def main():
 
         HP_dict = {
                 'Window size' : ex_window_size,
-                'Horizon factor': ex_horizon_factor,
+                'Horizon factor': ex_forecast_horizon,
                 'Epoch': ex_epoch,
                 'Learning_rate' : ex_learning_rate
             }
@@ -306,7 +306,7 @@ def main():
                         st.session_state.explanation = HP_dict['Window size']
                     window_size = st.text_input('', value = 30, label_visibility='collapsed') 
                 with hori_fac:
-                    if st.button(HP_horizon_factor):
+                    if st.button(HP_forecast_horizon):
                         st.session_state.explanation = HP_dict['Horizon factor']
                     horizon_factor = st.text_input('', value = 1, label_visibility='collapsed')
                 
@@ -383,7 +383,7 @@ def main():
             except:
                 st.text_area(' ', pred_graph, height = 454, disabled = True, label_visibility='collapsed')
 
-            _, _, download = st.columns([4, 4, 2.1])
+            _, _, download = st.columns(3)
             with download:
                 try:
                     if uploaded_file and result_req.ok:
