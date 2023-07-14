@@ -16,6 +16,7 @@ def main():
         f"<a style='display: block; text-align: center;' href=https://github.com/statgarten/playdoh>Github link</a>",
         unsafe_allow_html=True,
     )
+
     
     app_options = {
         "Image Classification": img_cls,
