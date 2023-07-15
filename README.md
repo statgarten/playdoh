@@ -11,6 +11,9 @@ The playdoh package provides some applications that can be used easily by people
 - Speech-to-Text
 - Time Series Forecasting
 
+## Checking for Git LFS
+This repository uses Git Large File Storage (LFS) to handle the tracking of pretrained model objects. If you do not have Git LFS installed, you can install it on this page([Git LFS page](https://git-lfs.com/)).
+
 ## Prerequisite
 - Docker
 - Visual Studio Code
