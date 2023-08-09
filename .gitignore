@@ -134,5 +134,11 @@ dmypy.json
 
 .DS_Store
 
+# pretrained_models
+fastapi_backend/pretrained_model/mobilenet_v3/
+fastapi_backend/pretrained_model/wav2vec2/
+fastapi_backend/pretrained_model/wav2vec2-grammar-fixer/
+fastapi_backend/pretrained_model/kobert_ft/
+
 # trained models
-fastapi_backend/trained_model/
+fastapi_backend/trained_model/*.pth

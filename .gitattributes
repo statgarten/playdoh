@@ -1,3 +1,0 @@
-fastapi_backend/pretrained_model/kobert_ft/pytorch_model.bin filter=lfs diff=lfs merge=lfs -text
-fastapi_backend/pretrained_model/mobilenet_v3/mobilenetv3-large.pth filter=lfs diff=lfs merge=lfs -text
-fastapi_backend/pretrained_model/wav2vec2/pytorch_model.bin filter=lfs diff=lfs merge=lfs -text
