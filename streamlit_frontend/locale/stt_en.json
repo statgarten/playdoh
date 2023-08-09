@@ -2,6 +2,7 @@
     "en":{
 
         "sub_title":"Speech-to-Text",
+        "warning": "⚠️Audio files exceeding 30 seconds may raise errors depending on the computer specifications. Please upload only audio files that are 30 seconds or shorter.",
         "choose_audio":"Choose an audio file",
         "transcribe_button": "Transcribe",
         "download": "Download Result",

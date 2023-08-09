@@ -18,6 +18,7 @@ def main():
     st.header(translate('sub_title', st.session_state.ko_en))
 
     left_column, right_column = st.columns(2)
+    left_column.caption(translate('warning', st.session_state.ko_en))
     uploaded_file = left_column.file_uploader(translate('choose_audio', st.session_state.ko_en), type=["wav", "mp3", "flac", "ogg"])
     
     mode = st.radio(translate('radio', st.session_state.ko_en), (translate('korean', st.session_state.ko_en), 

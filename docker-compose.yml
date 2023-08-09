@@ -20,6 +20,7 @@ services:
       - playdoh
     volumes:
       - ./fastapi_backend:/app
+    restart: on-failure
 
 networks:
   playdoh:
