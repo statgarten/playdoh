@@ -1,4 +1,4 @@
-# :yellow_heart: stove <img src="logo.png" width="120" align="right"/>
+# :yellow_heart: playdoh <img src="logo.png" width="120" align="right"/>
 
 <!-- badges: start -->
 [![Lifecycle:experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
