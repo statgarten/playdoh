@@ -36,7 +36,7 @@ def main():
         client_id_input, client_secret_input, _, _  = st.columns(4)
 
         client_id = client_id_input.text_input(translate('Client_ID', st.session_state.ko_en),value="")
-        client_secret = client_secret_input.text_input(translate('Client_Secret', st.session_state.ko_en),value="")
+        client_secret = client_secret_input.text_input(translate('Client_Secret', st.session_state.ko_en),value="",type="password")
 
         _,_,_,l4_column,_,_,_,_   = st.columns(8)
         submit_button = l4_column.button(translate('transcribe_button', st.session_state.ko_en), use_container_width=True)

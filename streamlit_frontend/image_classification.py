@@ -204,12 +204,10 @@ def css_style():
                 button[kind="secondary"]:focus {
                     outline: none !important;
                     box-shadow: none !important;
-                    color: black !important;
                 }
 
                 button[kind="secondary"]:hover { 
                     text-decoration: none;
-                    color: black !important;
                 }
 
                 [data-testid="stFileUploadDropzone"] div div span{display:none;}
