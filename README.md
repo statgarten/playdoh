@@ -12,7 +12,7 @@ The playdoh package provides some applications that can be used easily by people
 - Time Series Forecasting
 
 ## Download models
-The pretrained models required for using the Playdoh package are almost 1 GB in size, but we are not using the paid plan of git lfs. **Please download the models from the link below and place them in the 'pretrained_model' folder.**
+The pretrained models required for using the Playdoh package are almost 1 GB in size, but we are not using the paid plan of git lfs. **Please download the models from the link below and place them in the 'fastapi_backend/pretrained_model' folder.**
 
 [Download models (Google Drive)](https://drive.google.com/drive/folders/1up4XtIwaaLf_bUAQxGlbqGaNU6Lq-I0T?usp=drive_link)
 
