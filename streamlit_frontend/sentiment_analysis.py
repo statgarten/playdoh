@@ -24,7 +24,7 @@ def main():
 
     # Text input
     enter_text = translate('enter_text', st.session_state.ko_en)
-    text = left_column.text_area(enter_text, height=400)
+    text = left_column.text_area(enter_text, height=400, max_chars=350)
 
     analyze_button = translate('analyze_button', st.session_state.ko_en)
 
@@ -59,13 +59,13 @@ def main():
             df = df.sort_values('emoji')
         
             colors = ["#FBCB0A", "#C70A80", "#3EC70B", "#590696", "#37E2D5", "#D3D3D3", "#FF4500"]
-            color_scale = alt.Scale(domain=df['emoji'].unique(), range=colors)
+            color_scale = alt.Scale(domain=df['sent'].unique(), range=colors)
 
             # chart
             base = alt.Chart(df, height=400).mark_bar(size=30).encode(
                     alt.X('prob', axis=None),
                     alt.Y('emoji', title=''),
-                    alt.Color('emoji', scale=color_scale, legend=None)
+                    alt.Color('sent', scale=color_scale, legend=None)
                     )
 
             # Add text to chart

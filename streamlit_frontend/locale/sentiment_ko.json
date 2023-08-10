@@ -3,6 +3,7 @@
   
         "sub_title":"다중감성분류",
         "enter_text":"여기에 텍스트를 입력해주세요.",
+        "text_limit": "300자 이상 적을 수 없습니다.",
         "analyze_button": "분석",
         "null_alert": "오늘의 감정을 적어보세요",
         "en_alert": "현재 버전에서는 한국어만 지원됩니다"

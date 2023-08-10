@@ -3,6 +3,7 @@
 
         "sub_title":"Multiple Sentiment Analysis",
         "enter_text":"Enter your text here",
+        "text_limit": "You can't use more than 300 characters.",
         "analyze_button": "Analyze",
         "null_alert": "Please write down your feelings",
         "en_alert": "Sorry, but only Korean is supported in the current version"
