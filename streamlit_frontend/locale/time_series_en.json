@@ -37,8 +37,9 @@
         
         "training_validation_model_button":"Train Model",
         "training_model_spinner":"Model is training. Don't click other button",
-        "training_model_complete":"training_model_complete",
-        "prediction_model_button":"Predict",
+
+        "training_model_complete":"Training complete",
+        "prediction_model_button":"Prediction",
 
         "after_train":"Please training model",
 

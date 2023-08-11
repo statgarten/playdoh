@@ -37,7 +37,7 @@
         
         "training_validation_model_button":"모델 훈련",
         "training_model_spinner":"모델 학습중입니다. 다른 버튼을 누르지 마세요.",
-        "training_model_complete":"학습 성공",
+        "training_model_complete":"학습 완료",
         "prediction_model_button":"예측",
 
         "after_train":"학습을 먼저 해주세요",
