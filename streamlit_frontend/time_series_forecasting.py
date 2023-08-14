@@ -345,7 +345,7 @@ def main():
                                     res = response.json()
                                     if res['data_success']:
                                         test_x_tensor = res['test_x_tensor']
-                                        st.write(training_model_complete)
+                                        st.success(training_model_complete)
                                     else:
                                         # window_size > scaled_test 인 경우 진행 불가
                                         st.write('윈도우 사이즈를 ' + str(res['scaled_size']) + '보다 줄여서 학습을 진행해 주세요')
@@ -373,7 +373,7 @@ def main():
                     else:
                         st.caption('학습 범위를 제대로 설정해주세요')
                 else:
-                    st.caption(upload_train_csv)
+                    st.info(upload_train_csv)
 
         with pred_result:
             try:

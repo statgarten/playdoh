@@ -224,20 +224,6 @@ def main():
     # st.session_state['explanation'] 초기화
     explanation_session_clear()
 
-    # 언어에 따른 업로드 문구 변경
-    # if st.session_state.ko_en == 'en':
-    #     st.markdown("""
-    #         <style>
-    #         [data-testid="stFileUploadDropzone"] div div::before {content:"Upload your image"}
-    #         </style>
-    #     """,unsafe_allow_html=True)
-    # else:
-    #     st.markdown("""
-    #         <style>
-    #         [data-testid="stFileUploadDropzone"] div div::before {content:"사진을 업로드 해주세요"}
-    #         </style>
-    #     """,unsafe_allow_html=True)
-
     # st.session_state['num_classes'] 초기화
     if 'num_classes' not in st.session_state:
         st.session_state['num_classes'] = 2
@@ -390,7 +376,7 @@ def main():
         with hyper_parameter_explanation:
             if 'explanation' not in st.session_state:
                 st.session_state['explanation'] = explanation_text
-            st.text_area(explanation_title, st.session_state['explanation'], height = 342, disabled = True)
+            st.text_area(explanation_title, st.session_state['explanation'], height = 396, disabled = True)
 
         # Images to backend (/img_train)
         _, train_txt, train_model, _ = st.columns([12.8, 2.7, 2.0, 0.4])
