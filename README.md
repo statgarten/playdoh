@@ -19,6 +19,7 @@ The pretrained models required for using the Playdoh package are almost 1 GB in 
 ## Prerequisite (w/ Anaconda)
 - [Anaconda](https://www.anaconda.com/download) (or [Miniconda](https://docs.conda.io/en/latest/miniconda.html))
 - Visual Studio Code
+- Git
 
 ## Development Stack
 - Python
@@ -27,40 +28,54 @@ The pretrained models required for using the Playdoh package are almost 1 GB in 
 - Pytorch
 
 ## Instruction for Dev
-1. Launch Visual Studio Code (VS Code):
+1. Clone this repository and use the anaconda branch
+```
+your/dir/> git clone https://github.com/statgarten/playdoh.git
+your/dir/> git checkout anaconda
+your/dir/> git pull origin anaconda
+```
+2. Launch Visual Studio Code (VS Code):
     - Navigate to the playdoh directory and open it in VS Code.
-2. Set the Python Interpreter:
+    ```
+    your/dir/playdoh> code .
+    ```
+3. Set the Python Interpreter in VS Code:
     - Use the shortcut `Ctrl + Shift + P` to open the command palette.
     - Search for and select `Python: Select Interpreter`.
     - From the list, choose the interpreter associated with Anaconda or Miniconda.
-3. Configure conda-forge Channels:
+4. Open New Terminal (Anaconda)
+    - on Windows, use cmd, not powerwhell
+    ```
+    (base) your/dir/playdoh>
+    ```
+5. Configure conda-forge Channels:
     - Execute the following commands:
 ```
-conda config --add channels conda-forge
-conda config --set channel_priority strict
+(base) your/dir/playdoh> conda config --add channels conda-forge
+(base) your/dir/playdoh> conda config --set channel_priority strict
 ```
-4. Create Virtual Environments:
+6. Create Virtual Environments:
     - Set up two distinct virtual environments with Python version 3.9.17 for frontend and backend:
 ```
-conda create -n playdoh_front python=3.9.17
-conda create -n playdoh_back python=3.9.17
-conda env list
+(base) your/dir/playdoh> conda create -n playdoh_front python=3.9.17
+(base) your/dir/playdoh> conda create -n playdoh_back python=3.9.17
+(base) your/dir/playdoh> conda env list
 ```
-5. Setup and Run Frontend & Backend:
+7. Setup and Run Frontend & Backend:
     - For Frontend:
     ```
-    conda activate playdoh_front
-    cd ./streamlit_frontend
-    pip install -r requirements_front.txt
-    streamlit run app.py
+    (base) your/dir/playdoh> conda activate playdoh_front
+    (playdoh_front) your/dir/playdoh> cd ./streamlit_frontend
+    (playdoh_front) your/dir/playdoh/streamlit_frontend> pip install -r requirements_front.txt
+    (playdoh_front) your/dir/playdoh> streamlit run app.py
     ```
     - For Backend:
 
     ```
     conda activate playdoh_back
     cd ./fastapi_backend
-    pip install -r requirements.txt
+    pip install -r requirements_back.txt
     conda install libsndfile ffmpeg
     uvicorn server:app --reload --host=127.0.0.1 --port=8500
     ```
-6. Once set up, navigate to `127.0.0.1:8501` in your browser.
+8. Once set up, navigate to `127.0.0.1:8501` in your browser.
