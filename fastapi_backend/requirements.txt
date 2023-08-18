@@ -15,3 +15,4 @@ uvicorn
 torchaudio
 librosa
 pydub
+ffmpeg-python
