@@ -16,8 +16,8 @@ The pretrained models required for using the Playdoh package are almost 1 GB in 
 
 [Download models (Google Drive)](https://drive.google.com/drive/folders/1up4XtIwaaLf_bUAQxGlbqGaNU6Lq-I0T?usp=drive_link)
 
-## Prerequisite
-- Docker
+## Prerequisite (w/ Anaconda)
+- [Anaconda](https://www.anaconda.com/download) (or [Miniconda](https://docs.conda.io/en/latest/miniconda.html))
 - Visual Studio Code
 
 ## Development Stack
@@ -27,10 +27,28 @@ The pretrained models required for using the Playdoh package are almost 1 GB in 
 - Pytorch
 
 ## Instruction for Dev
-1. Clone playdoh and open it in VS Code.
-2. Download pretrained models into `fastapi_backend/pretrained_model` from [Google Drive](https://drive.google.com/drive/folders/1up4XtIwaaLf_bUAQxGlbqGaNU6Lq-I0T?usp=drive_link)
-3. Build Docker images and run containers using Docker Compose with the following command:
+1. Open the playdoh folder in Visual Studio Code.
+2. Press Ctrl + Shift + P and then choose Python: Select Interpreter. Select the interpreter that's based on Anaconda (or Miniconda).
+3. Add the conda-forge channels by running:
 ```
-docker-compose up -d
+conda config --add channels conda-forge
+conda config --set channel_priority strict
 ```
-4. If you make any modifications to the code, either on the frontend or backend, restart the respective container derived from the corresponding image.
+4. Install Python 3.9.17 and create two virtual environments for the frontend and backend respectively:
+```
+conda install python=3.9.17
+conda create -n playdoh_front python=3.9.17
+conda create -n playdoh_back python=3.9.17
+conda env list
+```
+5. For each virtual environment, install the required dependencies:
+```
+# For the frontend
+conda activate playdoh_front
+pip install -r ./streamlit_frontend/requirements.txt
+
+# For the backend
+conda activate playdoh_back
+pip install -r ./fastapi_backend/requirements.txt
+```
+6. Once set up, navigate to `127.0.0.1:8501` in your browser.
