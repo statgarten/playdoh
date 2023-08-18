@@ -27,28 +27,40 @@ The pretrained models required for using the Playdoh package are almost 1 GB in 
 - Pytorch
 
 ## Instruction for Dev
-1. Open the playdoh folder in Visual Studio Code.
-2. Press Ctrl + Shift + P and then choose Python: Select Interpreter. Select the interpreter that's based on Anaconda (or Miniconda).
-3. Add the conda-forge channels by running:
+1. Launch Visual Studio Code (VS Code):
+    - Navigate to the playdoh directory and open it in VS Code.
+2. Set the Python Interpreter:
+    - Use the shortcut `Ctrl + Shift + P` to open the command palette.
+    - Search for and select `Python: Select Interpreter`.
+    - From the list, choose the interpreter associated with Anaconda or Miniconda.
+3. Configure conda-forge Channels:
+    - Execute the following commands:
 ```
 conda config --add channels conda-forge
 conda config --set channel_priority strict
 ```
-4. Install Python 3.9.17 and create two virtual environments for the frontend and backend respectively:
+4. Create Virtual Environments:
+    - Set up two distinct virtual environments with Python version 3.9.17 for frontend and backend:
 ```
-conda install python=3.9.17
 conda create -n playdoh_front python=3.9.17
 conda create -n playdoh_back python=3.9.17
 conda env list
 ```
-5. For each virtual environment, install the required dependencies:
-```
-# For the frontend
-conda activate playdoh_front
-pip install -r ./streamlit_frontend/requirements.txt
+5. Setup and Run Frontend & Backend:
+    - For Frontend:
+    ```
+    conda activate playdoh_front
+    cd ./streamlit_frontend
+    pip install -r requirements_front.txt
+    streamlit run app.py
+    ```
+    - For Backend:
 
-# For the backend
-conda activate playdoh_back
-pip install -r ./fastapi_backend/requirements.txt
-```
+    ```
+    conda activate playdoh_back
+    cd ./fastapi_backend
+    pip install -r requirements.txt
+    conda install libsndfile ffmpeg
+    uvicorn server:app --reload --host=127.0.0.1 --port=8500
+    ```
 6. Once set up, navigate to `127.0.0.1:8501` in your browser.
