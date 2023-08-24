@@ -5,8 +5,8 @@
 
         "expander_upload_arrange":"파일 업로드 및 데이터 범위 지정",
 
-        "sample_data_checkbox":"예시 데이터 미리보기",
-        "sample_data_name":"예시 CSV 데이터",
+        "sample_data_checkbox":"샘픙 데이터 미리보기",
+        "sample_data_name":"샘픙 CSV 데이터",
         "sample_data_mode_start":"샘플 데이터로 시작하기",
         "sample_data_mode":"현재 샘플 데이터 모드입니다.",
 
