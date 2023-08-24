@@ -241,7 +241,7 @@ def main():
             if check_box_:
                 st.write(sample_data_name)
 
-                image = Image.open('time_series_forecasting_ex_image.png')
+                image = Image.open('time_series_example_data/time_series_forecasting_ex_image.png')
                 st.image(image, caption=None)
 
             uploaded_file = st.file_uploader(upload_train_csv, accept_multiple_files=False, type=['csv'])
@@ -263,8 +263,8 @@ def main():
                         train_df = pd.read_excel(uploaded_file)
 
                 elif sample_start:
-                    train_df = pd.read_csv('timeseries forecasting sample data.csv', encoding='utf-8')
-                    with open('timeseries forecasting sample data.csv', mode = 'rb') as f:
+                    train_df = pd.read_csv('time_series_example_data/timeseries_forecasting_sample_data.csv', encoding='utf-8')
+                    with open('time_series_example_data/timeseries_forecasting_sample_data.csv', mode = 'rb') as f:
                         csv_file_obj = io.BytesIO(f.read())
                         csv_files = {'file': csv_file_obj}
                     
