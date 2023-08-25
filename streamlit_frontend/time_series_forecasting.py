@@ -7,9 +7,12 @@ import requests
 import json
 import datetime
 import io
+import base64
 
 from dotenv import load_dotenv
 import os
+
+from PIL import Image
 
 load_dotenv()
 BACKEND_URL = os.getenv("BACKEND_URL")
@@ -57,7 +60,7 @@ def line_chart(data_df, int_col, pred_list, predict_plus_data, date):
         )
     )
 
-    chart = test_layer.mark_line(color='red') + raw_layer.mark_line(color='blue') + pred_layer.mark_line(color='green')
+    chart = raw_layer.mark_line(color='blue') + test_layer.mark_line(color='red') + pred_layer.mark_line(color='green')
     st.altair_chart(
         chart,
         use_container_width=True
@@ -158,12 +161,19 @@ def main():
     global prev_window_size 
     global result_req
     global response
+    global result_graph
+    result_graph = False
 
     sub_title = translate('sub_title', st.session_state.ko_en)
     
     expander_upload_arrange = translate('expander_upload_arrange', st.session_state.ko_en)
     
     upload_train_csv = translate('upload_train_csv', st.session_state.ko_en)
+
+    sample_data_checkbox = translate('sample_data_checkbox', st.session_state.ko_en)
+    sample_data_name = translate('sample_data_name', st.session_state.ko_en)
+    sample_data_mode_start = translate('sample_data_mode_start', st.session_state.ko_en)
+    sample_data_mode = translate('sample_data_mode', st.session_state.ko_en)
 
     decide_date_column = translate('decide_date_column', st.session_state.ko_en)
     decide_pred_column = translate('decide_pred_column', st.session_state.ko_en)
@@ -214,23 +224,54 @@ def main():
     with st.expander(expander_upload_arrange, expanded=True):
 
         _, upload_csv, choice_arrange, _ = st.columns([0.3, 4, 6, 0.3])
+        # 샘플은 버튼을 누르면 시작
+        global sample_start
+        sample_start = False
+
         with upload_csv:
+            
+            preview_data, sample_data = st.columns(2)
 
-            uploaded_file = st.file_uploader(upload_train_csv, accept_multiple_files=False, type=['csv','excel','xlsx'])
+            with preview_data:
+                check_box_ = st.checkbox(sample_data_checkbox, value=False)
+                
+            with sample_data:
+                if st.checkbox(sample_data_mode_start, value=False):
+                    st.caption(sample_data_mode)
+                    sample_start = True
 
-            if uploaded_file: 
+            if check_box_:
+                st.write(sample_data_name)
 
-                # Read the file data
-                csv_file_data = uploaded_file.getvalue()
-                # Create a file-like object
-                csv_file_obj = io.BytesIO(csv_file_data)
-                # Prepare the request payload
-                csv_files = {'file': csv_file_obj}
-                if uploaded_file.name.split('.')[-1] == 'csv':
-                    train_df = pd.read_csv(uploaded_file, encoding='utf-8')
-                else:
-                    train_df = pd.read_excel(uploaded_file)
+                image = Image.open('timeseries_sample_data/timeseries_forecasting_sample_image.png')
+                st.image(image, caption=None)
+
+            uploaded_file = st.file_uploader(upload_train_csv, accept_multiple_files=False, type=['csv'])
+
+            if uploaded_file or sample_start: 
+                
+                if uploaded_file:
+                    
+                    # Read the file data
+                    csv_file_data = uploaded_file.getvalue()
+                    # Create a file-like object
+                    csv_file_obj = io.BytesIO(csv_file_data)
+                    # Prepare the request payload
+                    csv_files = {'file': csv_file_obj}
+                
+                    if uploaded_file.name.split('.')[-1] == 'csv':
+                        train_df = pd.read_csv(uploaded_file, encoding='utf-8')
+                    elif uploaded_file.name.split('.')[-1] == 'excel':
+                        train_df = pd.read_excel(uploaded_file)
+
+                elif sample_start:
+                    train_df = pd.read_csv('timeseries_sample_data/timeseries_forecasting_sample_data.csv', encoding='utf-8')
+                    with open('timeseries_sample_data/timeseries_forecasting_sample_data.csv', mode = 'rb') as f:
+                        csv_file_obj = io.BytesIO(f.read())
+                        csv_files = {'file': csv_file_obj}
+                    
                 date_column, pred_column = st.columns(2)
+
                 with date_column:
                     try :
                         date = st.selectbox(decide_date_column,(train_df.select_dtypes(include=['object','datetime64']).columns.tolist()))
@@ -287,6 +328,7 @@ def main():
             else:
                 st.info(upload_info)
                 
+
     with st.expander(expander_train_prediction, expanded=False):
 
         _, choice_hp, _, pred_result, _ = st.columns([0.3, 3, 0.3, 7, 0.3])
@@ -328,9 +370,9 @@ def main():
             train_test, prediction = st.columns(2)
 
             with train_test:
-                if uploaded_file:
+                if uploaded_file or sample_start:
                     if train_start < train_end: # 학습의 범위에서 시작이 끝보다 크게 설정 되었을 때
-                        if st.button(training_validation_model_button, use_container_width=True) and uploaded_file:
+                        if st.button(training_validation_model_button, use_container_width=True) and (uploaded_file or sample_start):
                             prev_window_size = int(window_size)
                             with st.spinner(training_model_spinner):
                                 response = requests.post(f"{BACKEND_URL}/time_train", files=csv_files, data={'data_arranges':list(data_arrange),
@@ -348,13 +390,16 @@ def main():
                                         st.success(training_model_complete)
                                     else:
                                         # window_size > scaled_test 인 경우 진행 불가
-                                        st.write('윈도우 사이즈를 ' + str(res['scaled_size']) + '보다 줄여서 학습을 진행해 주세요')
+                                        if st.session_state.ko_en == 'en':
+                                            st.write('Please reduce your window size to less than ' + str(res['scaled_size']) + ' to learn ')
+                                        else:
+                                            st.write('윈도우 사이즈를 ' + str(res['scaled_size']) + '보다 줄여서 학습을 진행해 주세요')
                                 else:
                                     st.write(response)
 
                         # prediction이 안에 있는 이유는 잘못된 학습 범위나 파일을 업로드하지 않았을 때 한번에 처리하기 위함 
                         with prediction:
-                            if uploaded_file and st.button(prediction_model_button, use_container_width=True):
+                            if (uploaded_file or sample_start) and st.button(prediction_model_button, use_container_width=True):
                                 try:
                                     if prev_window_size == int(window_size): 
                                         result_req = requests.post(f"{BACKEND_URL}/time_pred", data={'test_x_tensor':list(test_x_tensor),
@@ -364,6 +409,7 @@ def main():
                                             resu = result_req.json()
                                             pred_list = resu['pred_list']
                                             add_pred_list = resu['predict_additional_list']
+                                            result_graph = True
                                         else:
                                             st.write(result_req)
                                     else:
@@ -376,24 +422,24 @@ def main():
                     st.info(upload_train_csv)
 
         with pred_result:
-            try:
-                st.write(time_series_forecasting)
-                if result_req.ok:
-                    line_chart(train_df, int_col, pred_list, add_pred_list, date)
-            except:
-                st.text_area(' ', pred_graph, height = 454, disabled = True, label_visibility='collapsed')
+            # try:
+            st.write(time_series_forecasting)
+            if result_graph:
+                line_chart(train_df, int_col, pred_list, add_pred_list, date)
+            # except:
+            #     st.text_area(' ', pred_graph, height = 454, disabled = True, label_visibility='collapsed')
 
             _, _, download = st.columns(3)
             with download:
-                try:
-                    if uploaded_file and result_req.ok:
-                        time_series_model = requests.get(f'{BACKEND_URL}/time_series_model_download')       
-                        st.download_button(label = model_download,
-                                        data = time_series_model.content,
-                                        file_name = 'time_series_forecasting_model.pth',
-                                        use_container_width=True)
-                except:
-                    st.caption(pred_after_down)
+                # try:
+                if (uploaded_file or sample_start) and result_graph:
+                    time_series_model = requests.get(f'{BACKEND_URL}/time_series_model_download')       
+                    st.download_button(label = model_download,
+                                    data = time_series_model.content,
+                                    file_name = 'time_series_forecasting_model.pth',
+                                    use_container_width=True)
+                # except:
+                #     st.caption(pred_after_down)
                     
 # For running this file individually
 # if __name__ == "__main__":

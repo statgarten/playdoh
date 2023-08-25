@@ -47,9 +47,9 @@ def main():
     app_options[app_choice].main()
 
     # hide streamlit menu and footer
+    # #MainMenu {visibility: hidden;}
     hide_default_format = """
        <style>
-       #MainMenu {visibility: hidden;}
        footer {visibility: hidden;}
        </style>
        """

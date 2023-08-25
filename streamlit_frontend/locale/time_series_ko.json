@@ -5,6 +5,11 @@
 
         "expander_upload_arrange":"파일 업로드 및 데이터 범위 지정",
 
+        "sample_data_checkbox":"샘픙 데이터 미리보기",
+        "sample_data_name":"샘플 CSV 데이터",
+        "sample_data_mode_start":"샘플 데이터로 시작하기",
+        "sample_data_mode":"현재 샘플 데이터 모드입니다.",
+
         "decide_date_column":"날짜 컬럼을 지정해주세요.",
         "decide_pred_column":"예측할 컬럼을 지정해주세요.",
 
