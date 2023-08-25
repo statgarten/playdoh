@@ -5,8 +5,8 @@
 
         "expander_upload_arrange":"Uplaod file and Decide date scope",
 
-        "sample_data_checkbox":"Preview example data",
-        "sample_data_name":"Example CSV data",
+        "sample_data_checkbox":"Preview sample data",
+        "sample_data_name":"Sample CSV data",
         "sample_data_mode_start":"Start with sample data",
         "sample_data_mode":"You are currently in sample data mode.",
         

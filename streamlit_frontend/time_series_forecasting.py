@@ -161,6 +161,8 @@ def main():
     global prev_window_size 
     global result_req
     global response
+    global result_graph
+    result_graph = False
 
     sub_title = translate('sub_title', st.session_state.ko_en)
     
@@ -241,7 +243,7 @@ def main():
             if check_box_:
                 st.write(sample_data_name)
 
-                image = Image.open('time_series_example_data/time_series_forecasting_ex_image.png')
+                image = Image.open('timeseries_sample_data/timeseries_forecasting_sample_image.png')
                 st.image(image, caption=None)
 
             uploaded_file = st.file_uploader(upload_train_csv, accept_multiple_files=False, type=['csv'])
@@ -263,8 +265,8 @@ def main():
                         train_df = pd.read_excel(uploaded_file)
 
                 elif sample_start:
-                    train_df = pd.read_csv('time_series_example_data/timeseries_forecasting_sample_data.csv', encoding='utf-8')
-                    with open('time_series_example_data/timeseries_forecasting_sample_data.csv', mode = 'rb') as f:
+                    train_df = pd.read_csv('timeseries_sample_data/timeseries_forecasting_sample_data.csv', encoding='utf-8')
+                    with open('timeseries_sample_data/timeseries_forecasting_sample_data.csv', mode = 'rb') as f:
                         csv_file_obj = io.BytesIO(f.read())
                         csv_files = {'file': csv_file_obj}
                     
@@ -388,7 +390,10 @@ def main():
                                         st.success(training_model_complete)
                                     else:
                                         # window_size > scaled_test 인 경우 진행 불가
-                                        st.write('윈도우 사이즈를 ' + str(res['scaled_size']) + '보다 줄여서 학습을 진행해 주세요')
+                                        if st.session_state.ko_en == 'en':
+                                            st.write('Please reduce your window size to less than ' + str(res['scaled_size']) + ' to learn ')
+                                        else:
+                                            st.write('윈도우 사이즈를 ' + str(res['scaled_size']) + '보다 줄여서 학습을 진행해 주세요')
                                 else:
                                     st.write(response)
 
@@ -404,6 +409,7 @@ def main():
                                             resu = result_req.json()
                                             pred_list = resu['pred_list']
                                             add_pred_list = resu['predict_additional_list']
+                                            result_graph = True
                                         else:
                                             st.write(result_req)
                                     else:
@@ -416,24 +422,24 @@ def main():
                     st.info(upload_train_csv)
 
         with pred_result:
-            try:
-                st.write(time_series_forecasting)
-                if result_req.ok:
-                    line_chart(train_df, int_col, pred_list, add_pred_list, date)
-            except:
-                st.text_area(' ', pred_graph, height = 454, disabled = True, label_visibility='collapsed')
+            # try:
+            st.write(time_series_forecasting)
+            if result_graph:
+                line_chart(train_df, int_col, pred_list, add_pred_list, date)
+            # except:
+            #     st.text_area(' ', pred_graph, height = 454, disabled = True, label_visibility='collapsed')
 
             _, _, download = st.columns(3)
             with download:
-                try:
-                    if (uploaded_file or sample_start) and result_req.ok:
-                        time_series_model = requests.get(f'{BACKEND_URL}/time_series_model_download')       
-                        st.download_button(label = model_download,
-                                        data = time_series_model.content,
-                                        file_name = 'time_series_forecasting_model.pth',
-                                        use_container_width=True)
-                except:
-                    st.caption(pred_after_down)
+                # try:
+                if (uploaded_file or sample_start) and result_graph:
+                    time_series_model = requests.get(f'{BACKEND_URL}/time_series_model_download')       
+                    st.download_button(label = model_download,
+                                    data = time_series_model.content,
+                                    file_name = 'time_series_forecasting_model.pth',
+                                    use_container_width=True)
+                # except:
+                #     st.caption(pred_after_down)
                     
 # For running this file individually
 # if __name__ == "__main__":
