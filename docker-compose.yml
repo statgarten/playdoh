@@ -4,25 +4,25 @@ services:
   frontend:
     build: ./streamlit_frontend
     ports:
-      - "8501:8501"
+      - "80:8501"
     networks:
       - playdoh
     depends_on:
       - backend
     volumes:
         - ./streamlit_frontend:/app
+    restart: always
 
   backend:
     build: ./fastapi_backend
-    ports:
-      - "8500:8001" # windows 11 tcp port 제외 범위를 피해 8500 포트 사용
+    ports: 
+      - "8001"
     networks:
       - playdoh
     volumes:
       - ./fastapi_backend:/app
-    restart: on-failure
+    restart: always
 
 networks:
   playdoh:
     driver: bridge
-    
