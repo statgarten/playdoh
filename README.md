@@ -76,6 +76,8 @@ your/dir/> git pull origin anaconda
     (playdoh_back) your/dir/playdoh> cd ./fastapi_backend
     (playdoh_back) your/dir/playdoh/fastapi_backend> pip install -r requirements_back.txt
     (playdoh_back) your/dir/playdoh/fastapi_backend> conda install libsndfile ffmpeg
+    (playdoh_back) your/dir/playdoh/fastapi_backend> gdown https://drive.google.com/uc?id=1kmYKJcybtMVYGIyis3dKDh7Ec4if7xAw
+    (playdoh_back) your/dir/playdoh/fastapi_backend> python -m zipfile -e pretrained_model.zip pretrained_model
     (playdoh_back) your/dir/playdoh/fastapi_backend> uvicorn server:app --reload --host=127.0.0.1 --port=8500
     ```
 8. Once set up, navigate to `127.0.0.1:8501` in your browser.
