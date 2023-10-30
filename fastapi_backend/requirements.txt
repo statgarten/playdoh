@@ -1,5 +1,5 @@
 kobert-tokenizer @ git+https://github.com/SKTBrain/KoBERT.git#egg=kobert_tokenizer&subdirectory=kobert_hf
-sentencepiece 
+sentencepiece
 streamlit
 scikit-learn
 pandas

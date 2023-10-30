@@ -65,7 +65,11 @@ def explanation_session_clear():
 # @st.cache(allow_output_mutation=True)
 def train_img_upload(i, uploaded_images, class_name, file_bytes_list):
 
-    images = st.file_uploader(' ',accept_multiple_files=True, key=f'uploader{i}', type=['png', 'jpg', 'jpeg', 'tiff','webp'],label_visibility='hidden') # 'tiff', 'webp'
+    ## modified by haenvi
+    #images = st.file_uploader(' ',accept_multiple_files=True, key=f'uploader{i}', type=['png', 'jpg', 'jpeg', 'tiff','webp'],label_visibility='hidden') # 'tiff', 'webp'
+    images = st.file_uploader(' ', accept_multiple_files=True, key=f'uploader{i}', type=['png', 'jpg', 'jpeg', 'tiff', 'webp', 'heic', 'jfif'], label_visibility='hidden')  # 'tiff', 'webp'
+    ## end modified
+
     if images:
         uploaded_images[class_name] = [image for image in images]
         for image, _ in zip(images, uploaded_images[class_name]):
@@ -420,7 +424,11 @@ def main():
 
             with test_img_load:
                 # 1) Upload a test image and send the image to (POST)
-                test_image = st.file_uploader(upload_test_image, type=['png', 'jpg', 'jpeg','tiff','webp'], accept_multiple_files=False)
+                #test_image = st.file_uploader(upload_test_image, type=['png', 'jpg', 'jpeg', 'tiff', 'webp'], accept_multiple_files=False)
+                ## modified by haenvi
+                test_image = st.file_uploader(upload_test_image, type=['png', 'jpg', 'jpeg', 'tiff', 'webp', 'heic', 'jfif'], accept_multiple_files=False)
+                ## end modified
+
                 if test_image:
                     # 테스트 사진에 대한 upload 및 request
                     pred = test_image_upload_request(test_image)
