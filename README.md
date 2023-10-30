@@ -44,7 +44,7 @@ your/dir/> git pull origin anaconda
     - Search for and select `Python: Select Interpreter`.
     - From the list, choose the interpreter associated with Anaconda or Miniconda.
 4. Open New Terminal (Anaconda)
-    - on Windows, use cmd, not powerwhell
+    - on Windows, use cmd, not PowerShell
     ```
     (base) your/dir/playdoh>
     ```
