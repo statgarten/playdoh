@@ -403,7 +403,11 @@ async def time_train_endpoint(data_arranges:list[str],
     label_data = 'Label_Data'
 
     content = await file.read()
-    train_df = pd.read_csv(BytesIO(content), encoding='utf-8')
+    if file_ext == 'csv':
+        train_df = pd.read_csv(BytesIO(content), encoding='utf-8')
+    elif file_ext == 'xlsx':
+        train_df = pd.read_excel(BytesIO(content))
+
 
     train_df[date] = pd.to_datetime(train_df[date])
 
