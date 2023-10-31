@@ -579,49 +579,66 @@ async def transcribe_api_endpoint(client_id: str = Form(...),
                                   file: UploadFile = File(...)):
     
     # Save temporary audio file
-    extension = os.path.splitext(file.filename)[1]  # Get the file extension
-    temp_audio_file = tempfile.NamedTemporaryFile(delete=False, suffix=extension)
+    ################## VITO API #################################
+        # Save temporary audio file
+        # extension = os.path.splitext(file.filename)[1]  # Get the file extension
+        # temp_audio_file = tempfile.NamedTemporaryFile(delete=False, suffix=extension)
+        # audio_file = await file.read()
+
+        # temp_audio_file.write(audio_file)
+        # temp_audio_file.close()
+
+        # print(temp_audio_file)
+        # wav_path = convert_audio_to_wav(temp_audio_file.name)
+        # print(wav_path)
+
+        # resp_token = requests.post(
+        # 'https://openapi.vito.ai/v1/authenticate',
+        # data={'client_id': client_id,
+        #       'client_secret': client_secret}
+        # )
+        # resp_token.raise_for_status()
+        # access_token = resp_token.json()['access_token']
+
+        # time.sleep(5)
+
+        # config = {
+        # "diarization": {
+        #     "use_verification": False
+        #     },
+        #     "use_multi_channel": False
+        # }
+
+        # resp_api = requests.post(
+        #     'https://openapi.vito.ai/v1/transcribe',
+        #     headers={'Authorization': 'bearer '+ access_token},
+        #     data={'config': json.dumps(config)},
+        #     files={'file': open(wav_path, 'rb')}
+        # )
+
+        # resp_api.raise_for_status()
+        # api_id = resp_api.json()['id']
+
+        # resp_msg = requests.get(
+        # 'https://openapi.vito.ai/v1/transcribe/'+ api_id,
+        # headers={'Authorization': 'bearer '+ access_token},
+        # )
+
+        # transcription = resp_msg.json()['results']['utterances'][0]['msg']
+
+        ################## VITO API Code End #################################
+
+        # openai whisper api code 추가
+    openai.api_key = api_key
+
     audio_file = await file.read()
-    temp_audio_file.write(audio_file)
-    temp_audio_file.close()
-    
-    wav_path = convert_audio_to_wav(temp_audio_file.name)
 
-    resp_token = requests.post(
-    'https://openapi.vito.ai/v1/authenticate',
-    data={'client_id': client_id,
-          'client_secret': client_secret}
-    )
-    resp_token.raise_for_status()
-    access_token = resp_token.json()['access_token']
-    
-    time.sleep(5)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
+        temp_file.write(audio_file)
+        temp_file_path = temp_file.name
 
-    config = {
-    "diarization": {
-        "use_verification": False
-        },
-        "use_multi_channel": False
-    }
-
-    resp_api = requests.post(
-        'https://openapi.vito.ai/v1/transcribe',
-        headers={'Authorization': 'bearer '+ access_token},
-        data={'config': json.dumps(config)},
-        files={'file': open(wav_path, 'rb')}
-    )
-
-    resp_api.raise_for_status()
-    api_id = resp_api.json()['id']
-
-    time.sleep(20)
-
-    resp_msg = requests.get(
-    'https://openapi.vito.ai/v1/transcribe/'+ api_id,
-    headers={'Authorization': 'bearer '+ access_token},
-    )
-    
-    transcription = resp_msg.json()['results']['utterances'][0]['msg']
+    with open(temp_file_path, 'rb') as open_audio_file:
+        transcription = openai.Audio.transcribe(model="whisper-1", file=open_audio_file, response_format="text", language='ko')
 
     return {"transcription": transcription}
 ########### Speech2Text End #############
