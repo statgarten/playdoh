@@ -11,6 +11,7 @@ import base64
 
 from dotenv import load_dotenv
 import os
+import openpyxl
 
 from PIL import Image
 
@@ -246,7 +247,8 @@ def main():
                 image = Image.open('timeseries_sample_data/timeseries_forecasting_sample_image.png')
                 st.image(image, caption=None)
 
-            uploaded_file = st.file_uploader(upload_train_csv, accept_multiple_files=False, type=['csv'])
+            #uploaded_file = st.file_uploader(upload_train_csv, accept_multiple_files=False, type=['csv'])
+            uploaded_file = st.file_uploader(upload_train_csv, accept_multiple_files=False, type=['csv', 'xlsx'])
 
             if uploaded_file or sample_start: 
                 
@@ -260,9 +262,12 @@ def main():
                     csv_files = {'file': csv_file_obj}
                 
                     if uploaded_file.name.split('.')[-1] == 'csv':
-                        train_df = pd.read_csv(uploaded_file, encoding='utf-8')
-                    elif uploaded_file.name.split('.')[-1] == 'excel':
-                        train_df = pd.read_excel(uploaded_file)
+                         train_df = pd.read_csv(uploaded_file, encoding='utf-8')
+                    elif uploaded_file.name.split('.')[-1] == 'xlsx':
+                         train_df = pd.read_excel(uploaded_file)
+
+                    file_ext = uploaded_file.name.split('.')[-1]
+
 
                 elif sample_start:
                     train_df = pd.read_csv('timeseries_sample_data/timeseries_forecasting_sample_data.csv', encoding='utf-8')
@@ -376,12 +381,13 @@ def main():
                             prev_window_size = int(window_size)
                             with st.spinner(training_model_spinner):
                                 response = requests.post(f"{BACKEND_URL}/time_train", files=csv_files, data={'data_arranges':list(data_arrange),
-                                                                                                                    'window_size':int(window_size),
-                                                                                                                    'horizon_factor':int(horizon_factor),
-                                                                                                                    'epoch':int(epoch),
-                                                                                                                    'learning_rate':float(learning_rate),
-                                                                                                                    'pred_col': int_col,
-                                                                                                                    'date': date})
+                                                                                                                                             'window_size':int(window_size),
+                                                                                                                                             'horizon_factor':int(horizon_factor),
+                                                                                                                                             'epoch':int(epoch),
+                                                                                                                                             'learning_rate':float(learning_rate),
+                                                                                                                                             'pred_col': int_col,
+                                                                                                                                             'date': date,
+                                                                                                                                             'file_ext':file_ext})
                                 
                                 if response.ok:
                                     res = response.json()
