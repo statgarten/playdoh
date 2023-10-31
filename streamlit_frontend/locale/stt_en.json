@@ -12,13 +12,13 @@
         "korean":"korean",
         "english":"english",
 
-        "Client_ID":"Client ID",
+        "api_key":"API key",
         "Client_Secret":"Client Secret",
 
-        "link_expl":"Get a Client ID and Client Secret through the links, and enter them below",
+        "link_expl":"Get a API key through the links, and enter them below",
         "link_name":"(Link)",
 
-        "select_korean":"Currently, STT for Korean is supported through the VITO Speech API",
+        "select_korean":"Currently, STT for Korean is supported through the openai Speech API",
 
         "play_wav":"Press  ▶   in the right playback bar to confirm that your voice file has been successfully uploaded"
 
