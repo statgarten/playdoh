@@ -5,6 +5,11 @@
 
         "expander_upload_arrange":"Uplaod file and Decide date scope",
 
+        "sample_data_checkbox":"Preview sample data",
+        "sample_data_name":"Sample CSV data",
+        "sample_data_mode_start":"Start with sample data",
+        "sample_data_mode":"You are currently in sample data mode.",
+        
         "decide_date_column":"Decide date column",
         "decide_pred_column":"Decide prediction column",
 
@@ -37,8 +42,9 @@
         
         "training_validation_model_button":"Train Model",
         "training_model_spinner":"Model is training. Don't click other button",
-        "training_model_complete":"training_model_complete",
-        "prediction_model_button":"Predict",
+
+        "training_model_complete":"Training complete",
+        "prediction_model_button":"Prediction",
 
         "after_train":"Please training model",
 
