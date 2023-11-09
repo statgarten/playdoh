@@ -65,7 +65,11 @@ def explanation_session_clear():
 # @st.cache(allow_output_mutation=True)
 def train_img_upload(i, uploaded_images, class_name, file_bytes_list):
 
-    images = st.file_uploader(' ',accept_multiple_files=True, key=f'uploader{i}', type=['png', 'jpg', 'jpeg', 'tiff','webp'],label_visibility='hidden') # 'tiff', 'webp'
+    ## modified by haenvi
+    #images = st.file_uploader(' ',accept_multiple_files=True, key=f'uploader{i}', type=['png', 'jpg', 'jpeg', 'tiff','webp'],label_visibility='hidden') # 'tiff', 'webp'
+    images = st.file_uploader(' ', accept_multiple_files=True, key=f'uploader{i}', type=['png', 'jpg', 'jpeg', 'tiff', 'webp', 'heic', 'jfif'], label_visibility='hidden')  # 'tiff', 'webp'
+    ## end modified
+
     if images:
         uploaded_images[class_name] = [image for image in images]
         for image, _ in zip(images, uploaded_images[class_name]):
@@ -224,20 +228,6 @@ def main():
     # st.session_state['explanation'] 초기화
     explanation_session_clear()
 
-    # 언어에 따른 업로드 문구 변경
-    # if st.session_state.ko_en == 'en':
-    #     st.markdown("""
-    #         <style>
-    #         [data-testid="stFileUploadDropzone"] div div::before {content:"Upload your image"}
-    #         </style>
-    #     """,unsafe_allow_html=True)
-    # else:
-    #     st.markdown("""
-    #         <style>
-    #         [data-testid="stFileUploadDropzone"] div div::before {content:"사진을 업로드 해주세요"}
-    #         </style>
-    #     """,unsafe_allow_html=True)
-
     # st.session_state['num_classes'] 초기화
     if 'num_classes' not in st.session_state:
         st.session_state['num_classes'] = 2
@@ -390,7 +380,7 @@ def main():
         with hyper_parameter_explanation:
             if 'explanation' not in st.session_state:
                 st.session_state['explanation'] = explanation_text
-            st.text_area(explanation_title, st.session_state['explanation'], height = 342, disabled = True)
+            st.text_area(explanation_title, st.session_state['explanation'], height = 396, disabled = True)
 
         # Images to backend (/img_train)
         _, train_txt, train_model, _ = st.columns([12.8, 2.7, 2.0, 0.4])
@@ -434,7 +424,11 @@ def main():
 
             with test_img_load:
                 # 1) Upload a test image and send the image to (POST)
-                test_image = st.file_uploader(upload_test_image, type=['png', 'jpg', 'jpeg','tiff','webp'], accept_multiple_files=False)
+                #test_image = st.file_uploader(upload_test_image, type=['png', 'jpg', 'jpeg', 'tiff', 'webp'], accept_multiple_files=False)
+                ## modified by haenvi
+                test_image = st.file_uploader(upload_test_image, type=['png', 'jpg', 'jpeg', 'tiff', 'webp', 'heic', 'jfif'], accept_multiple_files=False)
+                ## end modified
+
                 if test_image:
                     # 테스트 사진에 대한 upload 및 request
                     pred = test_image_upload_request(test_image)

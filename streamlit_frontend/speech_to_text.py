@@ -19,7 +19,7 @@ def main():
 
     left_column, right_column = st.columns(2)
     left_column.caption(translate('warning', st.session_state.ko_en))
-    uploaded_file = left_column.file_uploader(translate('choose_audio', st.session_state.ko_en), type=["wav", "mp3", "flac", "ogg"])
+    uploaded_file = left_column.file_uploader(translate('choose_audio', st.session_state.ko_en), type=["wav", "mp3", "flac", "ogg", "wma", "aac"])
     
     mode = st.radio(translate('radio', st.session_state.ko_en), (translate('korean', st.session_state.ko_en), 
                                                                  translate('english', st.session_state.ko_en)), horizontal=True)
@@ -29,39 +29,41 @@ def main():
         api_addr, _, _  = st.columns([2, 1, 1])
         
         api_addr.markdown(
-        f"<p style='display: inline-block;'><span style='display:inline-block;'><p>1. {translate('select_korean', st.session_state.ko_en)}</p>2. {translate('link_expl', st.session_state.ko_en)}<a style='display: inline-block; text-align: left;' href=https://developers.vito.ai/docs/>{translate('link_name', st.session_state.ko_en)}</a></p><p>3. {translate('play_wav', st.session_state.ko_en)}</p></span>",
+        f"<p style='display: inline-block;'><span style='display:inline-block;'><p>1. {translate('select_korean', st.session_state.ko_en)}</p>2. {translate('link_expl', st.session_state.ko_en)}<a style='display: inline-block; text-align: left;' href=https://platform.openai.com/docs/guides/speech-to-text>{translate('link_name', st.session_state.ko_en)}</a></p><p>3. {translate('play_wav', st.session_state.ko_en)}</p></span>",
         unsafe_allow_html=True,
         )
 
-        client_id_input, client_secret_input, _, _  = st.columns(4)
+        api_key_input, _, _, _  = st.columns(4)
 
-        client_id = client_id_input.text_input(translate('Client_ID', st.session_state.ko_en),value="")
-        client_secret = client_secret_input.text_input(translate('Client_Secret', st.session_state.ko_en),value="",type="password")
+        api_key = api_key_input.text_input(translate('api_key', st.session_state.ko_en), value="", type='password')
+
+        # client_secret = client_secret_input.text_input(translate('Client_Secret', st.session_state.ko_en),value="", type='password')
 
         _,_,_,l4_column,_,_,_,_   = st.columns(8)
         submit_button = l4_column.button(translate('transcribe_button', st.session_state.ko_en), use_container_width=True)
 
         if uploaded_file is not None :
             st.session_state.transcription = None
-            
+
             right_column.markdown('#')
             right_column.audio(uploaded_file)
 
-            if len(client_id) > 0 and len(client_secret) > 0 :
+            if len(api_key) > 0 :
 
                 wav_data = io.BytesIO(uploaded_file.read())
 
                 if submit_button:
-                    response = requests.post(f"{BACKEND_URL}/speech_to_text_api", files={"file": wav_data}, data={'client_id': client_id,
-                                                                                                                        'client_secret': client_secret})
+                    response = requests.post(f"{BACKEND_URL}/speech_to_text_api", files={"file": wav_data}, data={'api_key': api_key})
                     if response.status_code != 200:
                         st.error(response.status_code)
                     else:
                         transcription = response.json()["transcription"]
+
                         st.session_state.transcription = ''.join(transcription)
                         st.text_area(label = "Transcription:", value = st.session_state.transcription, disabled=True)
+
         _, right_column = st.columns(2)
-        right_column.caption('<div style="text-align: right;">Model Api: https://developers.vito.ai/</div>', unsafe_allow_html=True)
+        right_column.caption('<div style="text-align: right;">Model Api: https://platform.openai.com/docs/guides/speech-to-text</div>', unsafe_allow_html=True)
 
     elif mode == 'english' or mode == '영어':
         _,_,_,l4_column,_,_,_,_   = st.columns(8)
