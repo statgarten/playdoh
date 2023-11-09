@@ -33,6 +33,7 @@ from pydub import AudioSegment
 from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC
 import soundfile as sf
 import librosa
+import openai
 
 import requests
 import time
@@ -574,8 +575,7 @@ async def transcribe_endpoint(file: UploadFile = File(...)):
     return {"transcription": transcription}
 
 @app.post("/speech_to_text_api")
-async def transcribe_api_endpoint(client_id: str = Form(...),
-                                  client_secret: str = Form(...),
+async def transcribe_api_endpoint(api_key: str = Form(...),
                                   file: UploadFile = File(...)):
     
     # Save temporary audio file
@@ -637,8 +637,10 @@ async def transcribe_api_endpoint(client_id: str = Form(...),
         temp_file.write(audio_file)
         temp_file_path = temp_file.name
 
+    # client = OpenAI()
+
     with open(temp_file_path, 'rb') as open_audio_file:
-        transcription = openai.Audio.transcribe(model="whisper-1", file=open_audio_file, response_format="text", language='ko')
+        transcript = openai.audio.transcriptions.create(model="whisper-1", file=open_audio_file, response_format="text")
 
     return {"transcription": transcription}
 ########### Speech2Text End #############
