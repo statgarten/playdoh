@@ -392,6 +392,7 @@ def additional_pred(model, input_sequense, num_features, scaler, device):
 async def time_train_endpoint(data_arranges:list[str],
                               pred_col: str = Form(...),
                               date: str = Form(...),
+                              file_ext: str = Form(...),
                               window_size: int = Form(...),
                               horizon_factor: int = Form(...),
                               epoch: int = Form(...),
