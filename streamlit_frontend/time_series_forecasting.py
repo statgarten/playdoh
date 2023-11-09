@@ -267,14 +267,15 @@ def main():
                          train_df = pd.read_excel(uploaded_file)
 
                     file_ext = uploaded_file.name.split('.')[-1]
-
-
+                    
                 elif sample_start:
                     train_df = pd.read_csv('timeseries_sample_data/timeseries_forecasting_sample_data.csv', encoding='utf-8')
                     with open('timeseries_sample_data/timeseries_forecasting_sample_data.csv', mode = 'rb') as f:
                         csv_file_obj = io.BytesIO(f.read())
                         csv_files = {'file': csv_file_obj}
-                    
+
+                    file_ext = 'csv'
+                
                 date_column, pred_column = st.columns(2)
 
                 with date_column:
