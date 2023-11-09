@@ -5,6 +5,11 @@
 
         "expander_upload_arrange":"파일 업로드 및 데이터 범위 지정",
 
+        "sample_data_checkbox":"샘픙 데이터 미리보기",
+        "sample_data_name":"샘플 CSV 데이터",
+        "sample_data_mode_start":"샘플 데이터로 시작하기",
+        "sample_data_mode":"현재 샘플 데이터 모드입니다.",
+
         "decide_date_column":"날짜 컬럼을 지정해주세요.",
         "decide_pred_column":"예측할 컬럼을 지정해주세요.",
 
@@ -37,7 +42,7 @@
         
         "training_validation_model_button":"모델 훈련",
         "training_model_spinner":"모델 학습중입니다. 다른 버튼을 누르지 마세요.",
-        "training_model_complete":"학습 성공",
+        "training_model_complete":"학습 완료",
         "prediction_model_button":"예측",
 
         "after_train":"학습을 먼저 해주세요",
