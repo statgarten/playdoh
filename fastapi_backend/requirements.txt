@@ -3,7 +3,7 @@ sentencepiece==0.1.99
 gdown==4.7.1
 fastapi==0.104.0
 librosa==0.10.1
-openai==0.28.1
+openai==1.1.1
 openpyxl==3.1.2
 numpy==1.26.1
 streamlit==1.28.0
