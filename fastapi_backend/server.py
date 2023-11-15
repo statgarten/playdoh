@@ -109,7 +109,8 @@ def train_model(learning_rate, num_epochs, dataloader, device, model, opti):
             loss.backward()
             optimizer.step()
             
-            print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, i+1, total_step, loss.item()))
+            # print 구문 제거
+            # print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, i+1, total_step, loss.item()))
             
     return model
 
@@ -179,8 +180,9 @@ async def test_model_endpoint(files: list[UploadFile] = File(...)):
     for idx, ratio in enumerate(pred_prob):
         pred_list.append((encoder.inverse_transform([idx])[0], ratio.item())) # (label, ratio)
 
-    print(pred_prob)
-    print(pred_list)
+    # print 구문 제거
+    # print(pred_prob)
+    # print(pred_list)
     
     # 확률이 높은 순으로 정렬
     pred_list.sort(key = lambda x : x[1], reverse=True)
@@ -318,7 +320,7 @@ def train_time_model(learning_rate, num_epochs, train_x_tensor, train_y_tensor, 
 
         optimizer.step() # improve from loss = back propagation
 
-        print("Epoch : %d, loss : %1.5f" % (epoch+1, loss.item()))
+        #print("Epoch : %d, loss : %1.5f" % (epoch+1, loss.item()))
             
         ### early stopping 여부를 체크하는 부분 ###
         if loss > best_loss: # loss가 개선되지 않은 경우
@@ -376,15 +378,15 @@ def additional_pred(model, input_sequense, num_features, scaler, device):
         plus_test_tensor = torch.cat([plus_test_tensor.to(device), plus_tensor.to(device)])
         input_sequense = plus_tensor
 
-    print('plus_test_tensor shape :' ,plus_test_tensor[1:].shape)
+    #print('plus_test_tensor shape :' ,plus_test_tensor[1:].shape)
     
     with torch.no_grad():
         test_plus_predict = model(plus_test_tensor[1:].to(device))
     additional_predict_data = test_plus_predict.data.detach().cpu().numpy() # torch -> numpy conversion
     additional_plus_data = scaler.inverse_transform(additional_predict_data) # inverse normalization(Min/Max)
 
-    print('additional_plus_data shape :', additional_plus_data.shape)
-    print('additional_plus_data type :', type(additional_plus_data))
+    #print('additional_plus_data shape :', additional_plus_data.shape)
+    #print('additional_plus_data type :', type(additional_plus_data))
     
     return additional_plus_data
 
@@ -424,8 +426,9 @@ async def time_train_endpoint(data_arranges:list[str],
                                                             date, 
                                                             pred_col, 
                                                             label_data) # DataFrame
-    print('Training shape :', x_train.shape, y_train.shape)
-    print('Testing shape :', x_test.shape, y_test.shape) 
+    # 프린트 구문 제거
+    #print('Training shape :', x_train.shape, y_train.shape)
+    #print('Testing shape :', x_test.shape, y_test.shape) 
 
     # 정규화
     x_scaler = MinMaxScaler()
@@ -437,8 +440,8 @@ async def time_train_endpoint(data_arranges:list[str],
     y_scaled_train = y_scaler.fit_transform(y_train)
     y_scaled_test = y_scaler.transform(y_test)
 
-    print('train scaled shape :', x_scaled_train.shape, y_scaled_train.shape)
-    print('test scaled shape :', x_scaled_test.shape, y_scaled_test.shape)
+    #print('train scaled shape :', x_scaled_train.shape, y_scaled_train.shape)
+    #print('test scaled shape :', x_scaled_test.shape, y_scaled_test.shape)
 
     # 훈련데이터와 테스트데이터 를 각각 정규화 및 정답데이터 훈련데이터 분리
     train_x, train_y = seq2dataset(x_scaled_train, y_scaled_train, window_size, horizon_factor) # numpy_array
@@ -453,14 +456,14 @@ async def time_train_endpoint(data_arranges:list[str],
         return JSONResponse(content = response_content) # -> error 표시와, x_scaled_test의 갯수를 리턴하여 이 갯수보다 줄이라고 표시해주기?
 
     # Check Data pre-processing
-    print("Training numpy array shape :", train_x.shape, train_y.shape)
-    print("Testing numpy array shape :", test_x.shape, test_y.shape)
+    #print("Training numpy array shape :", train_x.shape, train_y.shape)
+    #print("Testing numpy array shape :", test_x.shape, test_y.shape)
 
     # Numpy array상태로는 학습이 불가능하므로, Torch Variable 형태로 변경(data/grad/grad_fn)
     # lstm의 input 형태로 변경 - batch first = True 이므로 torch.tensor(batch, seq, feature)
     train_x_tensor, train_y_tensor, test_x_tensor, test_y_tensor = numpy_to_torch(train_x, train_y, test_x, test_y)
-    print("Training data tensor shape :", train_x_tensor.shape, train_y_tensor.shape)
-    print("Testing data tensor shape :", test_x_tensor.shape, test_y_tensor.shape)
+    #print("Training data tensor shape :", train_x_tensor.shape, train_y_tensor.shape)
+    #print("Testing data tensor shape :", test_x_tensor.shape, test_y_tensor.shape)
 
     # 모델 훈련
     time_series_model, loss_check = train_time_model(learning_rate, epoch, train_x_tensor, train_y_tensor, device)
