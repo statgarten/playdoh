@@ -642,5 +642,7 @@ async def transcribe_api_endpoint(api_key: str = Form(...),
     with open(temp_file_path, 'rb') as open_audio_file:
         transcript = openai.audio.transcriptions.create(model="whisper-1", file=open_audio_file, response_format="text")
 
-    return {"transcription": transcription}
+    #bug-fix, tjkim
+    #return {"transcription": transcription}
+    return {"transcription": transcript}
 ########### Speech2Text End #############
