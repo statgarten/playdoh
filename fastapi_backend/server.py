@@ -393,6 +393,7 @@ def additional_pred(model, input_sequense, num_features, scaler, device):
 # training 
 @app.post("/time_train")
 async def time_train_endpoint(data_arranges:list[str],
+                              file_ext: str = Form(...),
                               pred_col: str = Form(...),
                               date: str = Form(...),
                               window_size: int = Form(...),
