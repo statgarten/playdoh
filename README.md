@@ -36,5 +36,6 @@ docker-compose up -d
 4. If you make any modifications to the code, either on the frontend or backend, restart the respective container derived from the corresponding image.
 
 ## Tutorial Link
-If you clicks the link below to view the tutorials for each task.
-Link : https://www.youtube.com/playlist?list=PLrMhGd_uwalEoH2RQnhborObHlXeKmCkp
+Click the image below to view other tutorial videos.
+
+[![Video Label](http://img.youtube.com/vi/yUz0V6R-EqA/0.jpg)](http://youtu.be/yUz0V6R-EqA)
