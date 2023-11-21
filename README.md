@@ -34,3 +34,7 @@ The pretrained models required for using the Playdoh package are almost 1 GB in 
 docker-compose up -d
 ```
 4. If you make any modifications to the code, either on the frontend or backend, restart the respective container derived from the corresponding image.
+
+## Tutorial Link
+If you clicks the link below to view the tutorials for each task.
+Link : https://www.youtube.com/playlist?list=PLrMhGd_uwalEoH2RQnhborObHlXeKmCkp
