@@ -39,3 +39,11 @@ docker-compose up -d
 Click the image below to view other tutorial videos.
 
 [![Video Label](http://img.youtube.com/vi/yUz0V6R-EqA/0.jpg)](http://youtu.be/yUz0V6R-EqA)
+
+## Authors
+
+-   Dongryul Min [\@MinDongRyul](http://github.com/MinDongRyul)
+
+## License
+
+Copyright :copyright: 2023 PHI This project is [MIT](https://opensource.org/licenses/MIT) licensed
