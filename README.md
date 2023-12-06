@@ -67,7 +67,7 @@ your/dir/> git pull origin anaconda
     (base) your/dir/playdoh> conda activate playdoh_front
     (playdoh_front) your/dir/playdoh> cd ./streamlit_frontend
     (playdoh_front) your/dir/playdoh/streamlit_frontend> pip install -r requirements_front.txt
-    (playdoh_front) your/dir/playdoh/streamlit_frontend> streamlit run app.py
+    (playdoh_front) your/dir/playdoh/streamlit_frontend> streamlit run app.py --server.port 80
     ```
     - For Backend:
 
@@ -78,6 +78,6 @@ your/dir/> git pull origin anaconda
     (playdoh_back) your/dir/playdoh/fastapi_backend> conda install libsndfile ffmpeg
     (playdoh_back) your/dir/playdoh/fastapi_backend> gdown https://drive.google.com/uc?id=1kmYKJcybtMVYGIyis3dKDh7Ec4if7xAw
     (playdoh_back) your/dir/playdoh/fastapi_backend> python -m zipfile -e pretrained_model.zip pretrained_model
-    (playdoh_back) your/dir/playdoh/fastapi_backend> uvicorn server:app --reload --host=127.0.0.1 --port=8500
+    (playdoh_back) your/dir/playdoh/fastapi_backend> uvicorn server:app --reload --host=127.0.0.1 --port=8000
     ```
-8. Once set up, navigate to `127.0.0.1:8501` in your browser.
+8. Once set up, navigate to `127.0.0.1:80` in your browser.
