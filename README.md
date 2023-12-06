@@ -50,17 +50,17 @@ your/dir/> git pull origin anaconda
     ```
 5. Configure conda-forge Channels:
     - Execute the following commands:
-```
-(base) your/dir/playdoh> conda config --add channels conda-forge
-(base) your/dir/playdoh> conda config --set channel_priority strict
-```
+    ```
+    (base) your/dir/playdoh> conda config --add channels conda-forge
+    (base) your/dir/playdoh> conda config --set channel_priority strict
+    ```
 6. Create Virtual Environments:
     - Set up two distinct virtual environments with Python version 3.9.17 for frontend and backend:
-```
-(base) your/dir/playdoh> conda create -n playdoh_front python=3.9.17
-(base) your/dir/playdoh> conda create -n playdoh_back python=3.9.17
-(base) your/dir/playdoh> conda env list
-```
+    ```
+    (base) your/dir/playdoh> conda create -n playdoh_front python=3.9.17
+    (base) your/dir/playdoh> conda create -n playdoh_back python=3.9.17
+    (base) your/dir/playdoh> conda env list
+    ```
 7. Setup and Run Frontend & Backend:
     - For Frontend:
     ```
