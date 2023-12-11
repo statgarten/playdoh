@@ -30,9 +30,10 @@ The pretrained models required for using the Playdoh package are almost 1 GB in 
 ## Instruction for Dev
 1. Clone this repository and use the anaconda branch
 ```
-your/dir/> git clone https://github.com/statgarten/playdoh.git
-your/dir/> git checkout anaconda
-your/dir/> git pull origin anaconda
+your/dir> git clone https://github.com/statgarten/playdoh.git
+your/dir> cd playdoh
+your/dir/playdoh> git checkout anaconda
+your/dir/playdoh> git pull origin anaconda
 ```
 2. Launch Visual Studio Code (VS Code):
     - Navigate to the playdoh directory and open it in VS Code.
