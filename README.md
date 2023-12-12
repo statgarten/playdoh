@@ -81,4 +81,4 @@ your/dir/playdoh> git pull origin anaconda
     (playdoh_back) your/dir/playdoh/fastapi_backend> python -m zipfile -e pretrained_model.zip pretrained_model
     (playdoh_back) your/dir/playdoh/fastapi_backend> uvicorn server:app --reload --host=127.0.0.1 --port=8000
     ```
-8. Once set up, navigate to `127.0.0.1:80` in your browser.
+8. Once set up, navigate to `localhost:80` in your browser.
