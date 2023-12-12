@@ -17,6 +17,7 @@
 
         "link_expl":"Get a API key through the links, and enter them below",
         "link_name":"(Link)",
+        "reg_card":"※ To use this API, you must have a registered card and a credit payment.",
 
         "select_korean":"Currently, STT for Korean is supported through the openai Speech API",
 
