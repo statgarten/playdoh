@@ -1,5 +1,4 @@
 import streamlit as st
-from streamlit_modal import Modal
 import pandas as pd
 import altair as alt
 import requests

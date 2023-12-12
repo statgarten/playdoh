@@ -29,7 +29,7 @@ def main():
         api_addr, _, _  = st.columns([2, 1, 1])
         
         api_addr.markdown(
-        f"<p style='display: inline-block;'><span style='display:inline-block;'><p>1. {translate('select_korean', st.session_state.ko_en)}</p>2. {translate('link_expl', st.session_state.ko_en)}<a style='display: inline-block; text-align: left;' href=https://platform.openai.com/docs/guides/speech-to-text>{translate('link_name', st.session_state.ko_en)}</a></p><p>3. {translate('play_wav', st.session_state.ko_en)}</p></span>",
+        f"<p style='display: inline-block;'><span style='display:inline-block;'><p>1. {translate('select_korean', st.session_state.ko_en)}</p>2. {translate('link_expl', st.session_state.ko_en)}<a style='display: inline-block; text-align: left;' href=https://platform.openai.com/docs/guides/speech-to-text>{translate('link_name', st.session_state.ko_en)}</a></p><p style='color: red; font-size: small;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{translate('reg_card', st.session_state.ko_en)}</p><p>3. {translate('play_wav', st.session_state.ko_en)}</p></span>",
         unsafe_allow_html=True,
         )
 

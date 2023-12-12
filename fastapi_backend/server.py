@@ -98,7 +98,7 @@ def train_model(learning_rate, num_epochs, dataloader, device, model, opti):
         for i, (images, labels) in enumerate(dataloader):
             # Images and labels to device
             images = images.to(device)
-            labels = labels.to(device)
+            labels = labels.to(device).long()
 
             # Forward pass
             outputs = model(images)
@@ -109,7 +109,7 @@ def train_model(learning_rate, num_epochs, dataloader, device, model, opti):
             loss.backward()
             optimizer.step()
             
-            print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, i+1, total_step, loss.item()))
+            # print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, i+1, total_step, loss.item()))
             
     return model
 

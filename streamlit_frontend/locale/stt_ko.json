@@ -17,6 +17,7 @@
 
         "link_expl":"링크를 통해 에이피아이 키를 발급받고, 아래에 입력해주세요",
         "link_name":"(링크)",
+        "reg_card":"※ 해당 API를 사용하실 때에는 카드 등록과 크레딧 결제가 되어있어야 합니다.",
 
         "select_korean":"현재 한국어 대상 STT는 openai Speech API를 통해 지원합니다",
 
