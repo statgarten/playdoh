@@ -56,10 +56,10 @@ your/dir/playdoh> git pull origin anaconda
     (base) your/dir/playdoh> conda config --set channel_priority strict
     ```
 6. Create Virtual Environments:
-    - Set up two distinct virtual environments with Python version 3.9.17 for frontend and backend:
+    - Set up two distinct virtual environments with your local python version for frontend and backend:
     ```
-    (base) your/dir/playdoh> conda create -n playdoh_front python=3.9.17
-    (base) your/dir/playdoh> conda create -n playdoh_back python=3.9.17
+    (base) your/dir/playdoh> conda create -n playdoh_front python=3.x.x
+    (base) your/dir/playdoh> conda create -n playdoh_back python=3.x.x
     (base) your/dir/playdoh> conda env list
     ```
 7. Setup and Run Frontend & Backend:
@@ -76,7 +76,7 @@ your/dir/playdoh> git pull origin anaconda
     (base) your/dir/playdoh> conda activate playdoh_back
     (playdoh_back) your/dir/playdoh> cd ./fastapi_backend
     (playdoh_back) your/dir/playdoh/fastapi_backend> pip install -r requirements_back.txt
-    (playdoh_back) your/dir/playdoh/fastapi_backend> conda install libsndfile ffmpeg
+    (playdoh_back) your/dir/playdoh/fastapi_backend> conda install ffmpeg [libsndfile]
     (playdoh_back) your/dir/playdoh/fastapi_backend> gdown "https://drive.google.com/uc?id=1kmYKJcybtMVYGIyis3dKDh7Ec4if7xAw"
     (playdoh_back) your/dir/playdoh/fastapi_backend> python -m zipfile -e pretrained_model.zip pretrained_model
     (playdoh_back) your/dir/playdoh/fastapi_backend> uvicorn server:app --reload --host=127.0.0.1 --port=8000
