@@ -33,7 +33,7 @@ The pretrained models required for using the Playdoh package are almost 1 GB in 
     ```
     docker-compose up -d
     ```
-4. Once set up, navigate to `127.0.0.1:80` in your browser.
+4. Once set up, navigate to `127.0.0.1:80` or `localhost:80` in your browser.
 5. If you make any modifications to the code, either on the frontend or backend, restart the respective container derived from the corresponding image.
 
 ## Task tutorial
